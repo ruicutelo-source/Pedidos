@@ -254,6 +254,8 @@ function gravarReceita(nome, r, novo){
 /* ---------- apagar / sair ---------- */
 $("rec-apagar").onclick = ()=>{
   const o = ed && ed.original; if(!o) return;
+  const nPed = D.pedidos.filter((p)=>p.rec === o.id && !p.anulado).length;
+  if(nPed){ aviso(`Não é possível apagar a receita ${o.nome}: tem ${nPed} pedido(s) do café ainda por pagar ou por fechar.\nApague-a depois de esses pedidos serem pagos e o dia fechado.`, "Apagar receita"); return; }
   confirmar("Apagar receita", `<p>Apagar definitivamente a receita?</p><p><b>${esc(o.id)}  ${esc(o.nome)}</b><br>${o.itens.length} ingrediente(s)${o.temFoto ? " e a foto" : ""}</p>
     <p class="nota">O ID ${esc(o.id)} não voltará a ser usado.</p>`, "Apagar", ()=>{
       const ops = [{tipo: "del", col: "receitas", id: o.id}];

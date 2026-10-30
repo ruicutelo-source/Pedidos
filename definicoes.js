@@ -24,7 +24,6 @@ RENDER.inicio = function(){
   $("ini-receitas").querySelectorAll("tr[data-id]").forEach((tr)=>tr.onclick = ()=>abrirReceita(tr.dataset.id));
 };
 
-RENDER.cafe = function(){};
 
 /* ---------- Sessão ---------- */
 RENDER.def = function(){
@@ -87,4 +86,21 @@ $("def-importar-ficheiro").onchange = (e)=>{
       }, "verm");
   };
   rd.readAsText(f);
+};
+
+/* ---------- Apagar os dados do café (pedidos de teste da app antiga, etc.) ---------- */
+$("def-apagar-cafe").onclick = ()=>{
+  confirmar("Apagar os dados do café", `<p>Isto apaga <b>todos</b> os pedidos, pagamentos, fechos do dia e o arquivo do café
+    (incluindo os pedidos de teste da app antiga).</p><p>Os ingredientes, receitas, stock e clientes <b>não</b> são apagados.</p>`,
+    "Continuar", ()=>confirmar("Tem a certeza?", "<p>Esta ação não pode ser desfeita.</p>", "Apagar tudo do café", ()=>{
+      $("def-apagar-estado").textContent = "A apagar…";
+      Promise.all(["arquivo", "produtos"].map((c)=>Store.listarIds(c).catch(()=>[]))).then(([arq, prods])=>{
+        const ops = [];
+        for(const c of ["pedidos", "pagamentos", "fechos"]) for(const x of D[c]) ops.push({tipo: "del", col: c, id: x.id});
+        for(const id of arq) ops.push({tipo: "del", col: "arquivo", id});
+        for(const id of prods) ops.push({tipo: "del", col: "produtos", id});
+        gravar(ops); carrinho = []; selecaoContas.clear(); apuroSel = "atual";
+        $("def-apagar-estado").textContent = `Apagados: ${ops.length} registos.`; toast("Dados do café apagados.");
+      });
+    }, "verm"), "verm");
 };

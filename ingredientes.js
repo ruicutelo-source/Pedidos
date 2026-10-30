@@ -32,9 +32,6 @@ function custoReferencia(ing){
 }
 
 /* ======================= STOCK ======================= */
-/* O que os pedidos do café gastaram, por ingrediente (entra na fase 3) */
-function consumoPedidos(){ return new Map(); }
-
 /* Stock de todos os ingredientes: Map id -> {compras, saidas, consumo, stock} */
 function saldosStock(){
   const m = new Map();

@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1036647485085",
   appId: "1:1036647485085:web:a3f05d60475ac7177b0e74"
 };
-const VERSAO_APP = "2.1 (fase 2)";
+const VERSAO_APP = "2.2 (fase 3)";
 
 /* Quem é administrador. Qualquer outro email autorizado entra como caixa. */
 const EMAILS_ADMIN = ["administrador@cafe.pt"];
@@ -27,16 +27,33 @@ const MODO_FIREBASE = !!(FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.apiKey);
                             itens:[{ing, qtd, custo, nome, marca, unidade}], custoTotal, custoDose, pvp, temFoto, atualizado}
    fotos/{REC-001}:        {img}   (foto reduzida; só é lida quando a receita é aberta)
    movimentos/{id}:        {ing, tipo, qtd, valor, data}        (stock — fase 2)
-   clientes/{id}:          {nome}                               (café — fase 3)
+   clientes/{id}:          {nome}
+   pedidos/{id}:           {ts, cliente, rec, produto, qtd, preco, pagId, anulado}   (uma linha por produto;
+                            o preço fica gravado no momento do pedido; anulado = hora em que foi anulado)
+   pagamentos/{id}:        {ts, cliente, valor, pedidos:[ids]}
+   fechos/{id}:            {ts, ini, vendido, recebido, faltaDia, transita, transitadoAnt, nPedidos,
+                            recebidos[], emFalta[], top[], consumo:{ING-xxx: qtd}, nArquivo}
+   arquivo/{idFecho_n}:    {fecho, pedidos[], pagamentos[]}   (pedidos pagos e anulados dos dias fechados;
+                            não é carregado ao abrir a app — mantém a app rápida e dentro do plano grátis)
    config/contadores:      {ING, REC}   (último número usado; os IDs nunca se repetem)
    --------------------------------------------------------------------- */
-const COLS = ["ingredientes", "receitas", "movimentos", "clientes", "config"];
-let D = {}; for(const c of COLS) D[c] = [];
+const COLS = ["ingredientes", "receitas", "movimentos", "clientes", "config", "pedidos", "pagamentos", "fechos"];
+const COLS_SO_PEDIDO = ["arquivo", "produtos"];     // lidas só quando é preciso
+let D = {}; for(const c of COLS.concat(COLS_SO_PEDIDO)) D[c] = [];
 const Idx = {ing: new Map(), rec: new Map()};
+let versaoDados = 0;        // muda sempre que os dados mudam (para não refazer contas sem necessidade)
 function reindexar(){
+  versaoDados++;
   Idx.ing = new Map(D.ingredientes.map((x)=>[x.id, x]));
   Idx.rec = new Map(D.receitas.map((x)=>[x.id, x]));
+  D.pedidos.sort((a, b)=>a.ts - b.ts); D.pagamentos.sort((a, b)=>a.ts - b.ts); D.fechos.sort((a, b)=>a.ts - b.ts);
+  ultimoTs = Math.max(ultimoTs, ...D.pedidos.map((p)=>p.ts), ...D.pagamentos.map((p)=>p.ts), ...D.fechos.map((f)=>f.ts), 0);
 }
+/* hora única e sempre a subir (para a ordem dos pedidos) */
+let ultimoTs = 0;
+function agora(){ let t = Date.now(); if(t <= ultimoTs) t = ultimoTs + 1; ultimoTs = t; return t; }
+let seqId = 0;
+function novoId(pref){ seqId++; return pref + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + seqId.toString(36); }
 const contadores = ()=> D.config.find((c)=>c.id === "contadores") || {ING: 0, REC: 0};
 
 let renderAgendado = false;
@@ -48,7 +65,7 @@ const Local = {
   ler(){ try{ const t = localStorage.getItem(this.CHAVE); if(t) return JSON.parse(t); }catch(e){} return null; },
   gravar(){ try{ localStorage.setItem(this.CHAVE, JSON.stringify(D)); }catch(e){ aviso("Não foi possível guardar os dados neste aparelho: " + e.message); } },
   iniciar(){
-    const d = this.ler(); if(d) for(const c of COLS) D[c] = d[c] || [];
+    const d = this.ler(); if(d) for(const c of COLS.concat(COLS_SO_PEDIDO)) D[c] = d[c] || [];
     reindexar(); entrouUtilizador(null); render();
     window.addEventListener("storage", (e)=>{ if(e.key === this.CHAVE){ const n = this.ler(); if(n){ for(const c of COLS) D[c] = n[c] || []; reindexar(); render(); } } });
   },
@@ -68,6 +85,8 @@ const Local = {
     return Promise.resolve();
   },
   lerFoto(id){ try{ return Promise.resolve(localStorage.getItem(this.FOTO + id)); }catch(e){ return Promise.resolve(null); } },
+  lerDocs(col, ids){ return Promise.resolve(ids.map((id)=>D[col].find((x)=>x.id === id)).filter(Boolean)); },
+  listarIds(col){ return Promise.resolve((D[col] || []).map((x)=>x.id)); },
   utilizador(){ return null; }
 };
 
@@ -112,6 +131,11 @@ const Nuvem = {
   lerFoto(id){
     return this.db.collection("fotos").doc(id).get().then((d)=>d.exists ? d.data().img : null).catch(()=>null);
   },
+  lerDocs(col, ids){
+    return Promise.all(ids.map((id)=>this.db.collection(col).doc(id).get().then((d)=>d.exists ? {...d.data(), id: d.id} : null)))
+      .then((l)=>l.filter(Boolean));
+  },
+  listarIds(col){ return this.db.collection(col).get().then((q)=>q.docs.map((d)=>d.id)); },
   utilizador(){ return this.auth && this.auth.currentUser ? this.auth.currentUser.email : null; },
   entrar(email, pass){ return this.auth.signInWithEmailAndPassword(email, pass); },
   sair(){ return this.auth.signOut(); }
@@ -161,8 +185,10 @@ let papel = null;            // "admin" | "caixa"
 let ecraAtual = null;
 const ECRAS = {
   admin: [["inicio", "📊", "Início"], ["cafe", "☕", "Café"], ["receitas", "🍲", "Receitas"], ["ingredientes", "🥕", "Ingredientes"], ["def", "⚙️", "Definições"]],
-  caixa: [["cafe", "☕", "Café"], ["sessao", "👤", "Sessão"]]
+  caixa: [["pedido", "➕", "Pedido"], ["contas", "💶", "Contas"], ["apuro", "🧾", "Apuro"], ["sessao", "👤", "Sessão"]]
 };
+const ECRAS_CAFE = ["pedido", "contas", "apuro"];
+let ultimoCafe = "pedido";
 const RENDER = {};           // cada ecrã regista aqui a sua função de desenho
 const GANCHOS_RENDER = [];   // desenhos extra (ex.: a zona Stock dentro da janela do ingrediente)
 
@@ -175,16 +201,25 @@ function entrouUtilizador(email){
   mostrarLogin(false);
   $("nav").innerHTML = ECRAS[papel].map(([id, ic, t])=>`<button data-ecra="${id}"><span class="ic">${ic}</span>${t}</button>`).join("");
   $("nav").querySelectorAll("button").forEach((b)=>b.onclick = ()=>mostrar(b.dataset.ecra));
-  if(!ecraAtual || !ECRAS[papel].some((e)=>e[0] === ecraAtual)) ecraAtual = ECRAS[papel][0][0];
+  if(!ecraAtual || !podeVer(ecraAtual)) ecraAtual = ECRAS[papel][0][0];
   mostrar(ecraAtual, true);
 }
 function saiuUtilizador(){ papel = null; $("nav").innerHTML = ""; mostrarLogin(true); }
-function podeVer(ecra){ return papel && ECRAS[papel].some((e)=>e[0] === ecra); }
+function podeVer(ecra){
+  if(!papel) return false;
+  if(papel === "admin" && ECRAS_CAFE.includes(ecra)) return true;      // o administrador chega ao café pelo menu "Café"
+  return ECRAS[papel].some((e)=>e[0] === ecra);
+}
 function mostrar(e, semScroll){
+  if(e === "cafe") e = ultimoCafe;
   if(!podeVer(e)) return;
   ecraAtual = e;
+  if(ECRAS_CAFE.includes(e)) ultimoCafe = e;
+  const navAtivo = (papel === "admin" && ECRAS_CAFE.includes(e)) ? "cafe" : e;
   document.querySelectorAll(".ecra").forEach((s)=>s.classList.toggle("ativo", s.id === "ecra-" + e));
-  document.querySelectorAll("#nav button").forEach((b)=>b.classList.toggle("ativo", b.dataset.ecra === e));
+  document.querySelectorAll("#nav button").forEach((b)=>b.classList.toggle("ativo", b.dataset.ecra === navAtivo));
+  document.querySelectorAll(".abas-cafe").forEach((a)=>{ a.style.display = papel === "admin" ? "flex" : "none";
+    a.querySelectorAll("button").forEach((b)=>b.classList.toggle("ativo", b.dataset.aba === e)); });
   render(); if(!semScroll) window.scrollTo(0, 0);
 }
 function render(){

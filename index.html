@@ -30,13 +30,75 @@
   <div class="bloco rolar"><div id="ini-receitas"></div></div>
 </section>
 
-<!-- ======================= CAFÉ ======================= -->
-<section class="ecra" id="ecra-cafe">
-  <h2>Café</h2>
-  <div class="cartao">
-    <p style="margin-top:0"><b>Pedidos, contas e fecho do dia</b> chegam na fase 3 desta app.</p>
-    <p class="nota" style="margin-bottom:0">Até lá, continue a usar a app atual do café.</p>
+<!-- ======================= CAFÉ: PEDIDO ======================= -->
+<section class="ecra" id="ecra-pedido">
+  <div class="abas-cafe"><button data-aba="pedido">➕ Pedido</button><button data-aba="contas">💶 Contas</button><button data-aba="apuro">🧾 Apuro</button></div>
+  <h2>Novo pedido</h2>
+  <div class="grelha g2">
+    <div>
+      <div class="rel">
+        <input type="search" id="ped-cliente" placeholder="Cliente — comece a escrever…" autocomplete="off">
+        <div class="sugestoes" id="ped-sug" style="display:none"></div>
+      </div>
+      <div class="nota" id="ped-cliente-info"></div>
+      <input type="search" id="ped-filtro" placeholder="Procurar produto…" autocomplete="off" style="margin-top:8px">
+      <div class="produtos" id="ped-produtos"></div>
+    </div>
+    <div>
+      <div class="bloco"><div class="tit navy"><span>PEDIDO</span><span id="ped-cli-tit"></span></div>
+        <div id="ped-carrinho"></div></div>
+      <div class="linha" style="margin-top:10px">
+        <button class="bt sec" id="ped-limpar">Limpar</button>
+        <button class="bt cresce" id="ped-registar">Registar pedido</button>
+      </div>
+    </div>
   </div>
+  <h2>Pedidos do dia</h2>
+  <div id="ped-aguarda-antigos"></div>
+  <div class="bloco rolar"><div id="ped-lista"></div></div>
+</section>
+
+<!-- ======================= CAFÉ: CONTAS ======================= -->
+<section class="ecra" id="ecra-contas">
+  <div class="abas-cafe"><button data-aba="pedido">➕ Pedido</button><button data-aba="contas">💶 Contas</button><button data-aba="apuro">🧾 Apuro</button></div>
+  <h2>Contas em aberto</h2>
+  <div class="nota">Selecione um ou mais clientes para pagar em conjunto.</div>
+  <input type="search" id="cnt-filtro" placeholder="Procurar cliente…" autocomplete="off">
+  <div class="grelha g2" style="margin-top:10px">
+    <div class="bloco rolar"><div id="cnt-lista"></div></div>
+    <div>
+      <div class="bloco"><div class="tit navy"><span>A LIQUIDAR</span><span id="cnt-sel-tot"></span></div>
+        <div id="cnt-sel"></div></div>
+      <button class="bt verde" id="cnt-pagar" style="width:100%;margin-top:10px">Confirmar pagamento</button>
+    </div>
+  </div>
+  <h2>Pagamentos do dia</h2>
+  <div class="bloco rolar"><div id="cnt-pagos"></div></div>
+</section>
+
+<!-- ======================= CAFÉ: APURO / FECHO ======================= -->
+<section class="ecra" id="ecra-apuro">
+  <div class="abas-cafe"><button data-aba="pedido">➕ Pedido</button><button data-aba="contas">💶 Contas</button><button data-aba="apuro">🧾 Apuro</button></div>
+  <h2>Apuro</h2>
+  <div class="seletor" id="apu-seletor"></div>
+  <div class="nota" id="apu-desc"></div>
+  <div class="grelha g4">
+    <div class="cartao kpi"><div class="rot">Vendido</div><div class="val azul" id="a-vendido"></div></div>
+    <div class="cartao kpi"><div class="rot">Recebido</div><div class="val verde" id="a-recebido"></div></div>
+    <div class="cartao kpi"><div class="rot">Em falta (do dia)</div><div class="val verm" id="a-falta"></div></div>
+    <div class="cartao kpi"><div class="rot">Transitado</div><div class="val verm" id="a-transitado"></div></div>
+  </div>
+  <div class="grelha g3" style="margin-top:12px">
+    <div class="bloco"><div class="tit verde"><span>RECEBIDO</span><span id="a-rec-tot"></span></div><div id="a-rec"></div></div>
+    <div class="bloco"><div class="tit verm"><span>PAGAMENTOS EM FALTA</span><span id="a-falta-tot"></span></div><div id="a-falta-lista"></div></div>
+    <div class="bloco"><div class="tit navy"><span>MAIS VENDIDOS</span></div><div id="a-top"></div></div>
+  </div>
+  <div id="apu-fechar-zona" style="margin-top:14px">
+    <button class="bt" id="apu-fechar" style="width:100%">🔒 Fechar o dia</button>
+    <div class="nota">O que ficar por pagar transita automaticamente para o dia seguinte.</div>
+  </div>
+  <h2>Registo de fechos</h2>
+  <div class="bloco rolar"><div id="apu-hist"></div></div>
 </section>
 
 <!-- ======================= RECEITAS ======================= -->
@@ -143,6 +205,12 @@
   <h2>Sessão</h2>
   <div class="cartao"><div class="nota" id="def-modo" style="margin-top:0"></div>
     <button class="bt sec" id="def-sair">Terminar sessão</button></div>
+  <h2>Zona de perigo</h2>
+  <div class="cartao">
+    <div class="nota" style="margin-top:0">Apaga todos os pedidos, pagamentos e fechos do café (por exemplo, os pedidos de teste da app antiga).</div>
+    <button class="bt verm" id="def-apagar-cafe">Apagar os dados do café</button>
+    <div class="nota" id="def-apagar-estado"></div>
+  </div>
   <div class="nota" style="margin-top:14px" id="def-versao"></div>
 </section>
 
@@ -177,6 +245,7 @@
 <script src="nucleo.js"></script>
 <script src="ingredientes.js"></script>
 <script src="receitas.js"></script>
+<script src="cafe.js"></script>
 <script src="definicoes.js"></script>
 <script>arrancar();</script>
 </body>

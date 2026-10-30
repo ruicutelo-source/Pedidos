@@ -98,3 +98,21 @@ label.campo{display:block;font-size:13px;font-weight:600;color:var(--navy);margi
 .foto-caixa img{max-width:100%;max-height:320px;display:block}
 .qtd-uni{display:flex;align-items:center;gap:8px}
 .qtd-uni span{min-width:28px;font-weight:600;color:var(--cinz)}
+/* café */
+.produtos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+.produtos button{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:12px 8px;min-height:68px;
+                 font-size:15px;cursor:pointer;text-align:center}
+.produtos button b{display:block;font-size:13px;color:var(--cinz);font-weight:600;margin-top:4px}
+.produtos button:active{background:var(--cab)}
+.sugestoes div.novo{color:var(--navy);font-weight:700}
+.estado-aberto{color:var(--verm);font-weight:700}.estado-pago{color:var(--verde)}
+tr.anulado td{color:#9CA3AF;text-decoration:line-through}
+tr.anulado td:nth-child(6),tr.anulado td:nth-child(7){text-decoration:none}
+.aguarda{font-size:12px;color:var(--verm);font-weight:600;margin-top:2px}
+.verm-txt{color:var(--verm)!important;border-color:var(--verm)!important}
+.seletor{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.seletor button{border:1px solid var(--navy);background:#fff;color:var(--navy);border-radius:18px;padding:8px 14px;font-size:14px;cursor:pointer}
+.seletor button.ativo{background:var(--navy);color:#fff}
+.abas-cafe{display:none;gap:6px;margin:2px 0 6px;border-bottom:2px solid var(--cab)}
+.abas-cafe button{border:0;background:none;padding:10px 14px;font-size:15px;color:var(--cinz);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.abas-cafe button.ativo{color:var(--navy);font-weight:700;border-bottom-color:var(--navy)}
