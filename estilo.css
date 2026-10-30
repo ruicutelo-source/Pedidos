@@ -116,3 +116,29 @@ tr.anulado td:nth-child(6),tr.anulado td:nth-child(7){text-decoration:none}
 .abas-cafe{display:none;gap:6px;margin:2px 0 6px;border-bottom:2px solid var(--cab)}
 .abas-cafe button{border:0;background:none;padding:10px 14px;font-size:15px;color:var(--cinz);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
 .abas-cafe button.ativo{color:var(--navy);font-weight:700;border-bottom-color:var(--navy)}
+/* fichas para imprimir */
+#impressao{display:none}
+@media print{
+  body.a-imprimir > *:not(#impressao){display:none!important}
+  body.a-imprimir #impressao{display:block}
+  body.a-imprimir{background:#fff}
+  @page{size:A4;margin:14mm}
+}
+.ficha{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#1F2A37;font-size:11pt}
+.ficha .f-tit{background:#1F3A5F;color:#fff;font-weight:700;padding:8px 10px;font-size:12pt;letter-spacing:.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ficha .f-nome{font-size:16pt;font-weight:700;margin:10px 0 4px}
+.ficha .f-info{background:#2E75B6;color:#fff;font-style:italic;text-align:center;padding:5px;font-size:10pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ficha .f-foto{text-align:center;margin:10px 0}
+.ficha .f-foto img{max-height:62mm;max-width:100%}
+.ficha h3{font-size:11pt;color:#1F3A5F;border-bottom:2px solid #1F3A5F;margin:14px 0 6px;padding-bottom:3px}
+.ficha table{width:100%;border-collapse:collapse}
+.ficha th{background:#D9E1F2;color:#1F3A5F;font-size:10pt;text-align:left;padding:5px 7px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ficha td{padding:4px 7px;border-bottom:1px solid #D0D7E1;font-size:10.5pt}
+.ficha .num{text-align:right;white-space:nowrap}.ficha .c{text-align:center}
+.ficha tr.forte td{font-weight:700;background:#F2F5F9;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ficha table.resumo{max-width:120mm}
+.ficha .f-nota{font-size:9pt;color:#5B6B7F;font-style:italic}
+.ficha .alerta{color:#C00000;font-weight:700}
+.ficha .f-modo{white-space:pre-wrap;line-height:1.45}
+.ficha h3{break-after:avoid;page-break-after:avoid}
+.ficha table.resumo,.ficha tr{break-inside:avoid;page-break-inside:avoid}

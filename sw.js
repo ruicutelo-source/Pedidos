@@ -1,9 +1,9 @@
 // Service worker: guarda a app no aparelho para funcionar sem internet.
 // Ao publicar uma versão nova, aumente o número da versão abaixo.
 const PREFIXO = "cafe-app-";
-const VERSAO = PREFIXO + "2.2.0";
+const VERSAO = PREFIXO + "2.3.0";
 const FICHEIROS = ["./", "./index.html", "./estilo.css", "./calculos.js", "./nucleo.js", "./ingredientes.js",
-                   "./receitas.js", "./cafe.js", "./definicoes.js", "./manifest.json", "./icon-192.png", "./icon-512.png",
+                   "./receitas.js", "./cafe.js", "./definicoes.js", "./painel.js", "./fichas.js", "./manifest.json", "./icon-192.png", "./icon-512.png",
                    "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {

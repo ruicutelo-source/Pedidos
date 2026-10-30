@@ -3,28 +3,6 @@
    INÍCIO, CAFÉ (por agora), DEFINIÇÕES e SESSÃO
    ===================================================================== */
 
-/* ---------- Início (resumo das receitas; o painel completo vem na fase 4) ---------- */
-RENDER.inicio = function(){
-  const est = D.receitas.map((r)=>({r, e: estadoReceita(r)})).sort((a, b)=>porNome(a.r, b.r));
-  $("ini-n-ing").textContent = D.ingredientes.length;
-  $("ini-n-rec").textContent = D.receitas.length;
-  const lucros = est.map((x)=>x.e.ind.lucroPct).filter((v)=>v != null && isFinite(v));
-  $("ini-lucro").textContent = lucros.length ? pct(lucros.reduce((a, v)=>a + v, 0) / lucros.length) : "—";
-  const nDesat = est.filter((x)=>x.e.desatualizada).length;
-  $("ini-desat").textContent = nDesat; $("ini-desat").className = "val " + (nDesat ? "verm" : "verde");
-  $("ini-receitas").innerHTML = tabela(
-    [{t: "Receita"}, {t: "Doses", num: 1, cl: "so-largo"}, {t: "Custo / dose", num: 1}, {t: "PVP", num: 1}, {t: "Preço s/ IVA", num: 1, cl: "so-largo"},
-     {t: "Lucro / dose", num: 1, cl: "so-largo"}, {t: "Lucro %", num: 1}, {t: "Margem bruta", num: 1, cl: "so-largo"}],
-    est.map(({r, e})=>`<tr class="clic" data-id="${esc(r.id)}"><td><b>${esc(r.nome)}</b>${e.desatualizada ? " <span class=\"chip verm\">⚠</span>" : ""}</td>
-      <td class="num so-largo">${numTxt(r.doses)}</td><td class="num">${eur(r.custoDose)}</td><td class="num"><b>${eur(r.pvp)}</b></td>
-      <td class="num so-largo">${eur(e.ind.precoSemIva)}</td><td class="num so-largo">${eur(e.ind.lucro)}</td>
-      <td class="num"><span class="chip ${e.ind.cobreMargem ? "verde" : "verm"}">${pct(e.ind.lucroPct)}</span></td>
-      <td class="num so-largo">${pct(e.ind.margemBruta)}</td></tr>`),
-    "Ainda não há receitas. Importe os dados do Excel em Definições.");
-  $("ini-receitas").querySelectorAll("tr[data-id]").forEach((tr)=>tr.onclick = ()=>abrirReceita(tr.dataset.id));
-};
-
-
 /* ---------- Sessão ---------- */
 RENDER.def = function(){
   $("def-modo").innerHTML = textoSessao();
