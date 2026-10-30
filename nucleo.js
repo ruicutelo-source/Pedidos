@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1036647485085",
   appId: "1:1036647485085:web:a3f05d60475ac7177b0e74"
 };
-const VERSAO_APP = "2.0 (fase 1)";
+const VERSAO_APP = "2.1 (fase 2)";
 
 /* Quem é administrador. Qualquer outro email autorizado entra como caixa. */
 const EMAILS_ADMIN = ["administrador@cafe.pt"];
@@ -164,6 +164,7 @@ const ECRAS = {
   caixa: [["cafe", "☕", "Café"], ["sessao", "👤", "Sessão"]]
 };
 const RENDER = {};           // cada ecrã regista aqui a sua função de desenho
+const GANCHOS_RENDER = [];   // desenhos extra (ex.: a zona Stock dentro da janela do ingrediente)
 
 function papelDoEmail(email){
   if(!MODO_FIREBASE) return new URLSearchParams(location.search).get("papel") === "caixa" ? "caixa" : "admin";
@@ -190,6 +191,7 @@ function render(){
   $("hdr-data").textContent = new Date().toLocaleDateString("pt-PT", {weekday: "long", day: "2-digit", month: "long"});
   $("hdr-user").textContent = papel ? (papel === "admin" ? "Administrador" : "Caixa") : "";
   if(papel && ecraAtual && RENDER[ecraAtual]) RENDER[ecraAtual]();
+  if(papel) for(const g of GANCHOS_RENDER) g();
 }
 
 /* ---------- login ---------- */

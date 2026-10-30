@@ -113,11 +113,12 @@ function renderEditor(){
   const c = calcularReceita({...r, doses: r.doses || 0}, Idx.ing);
   $("rec-itens").innerHTML = tabela([{t: "Ingrediente"}, {t: "Qtd", num: 1}, {t: "Custo", num: 1}, {t: ""}],
     c.itens.map((it, i)=>`<tr class="${i === ed.editarItem ? "sel" : ""}"><td><b>${esc(it.nome)}</b>${it.marca ? `<div class="pequeno">${esc(it.marca)}</div>` : ""}
-        ${it.existe ? "" : `<div class="pequeno verm">já não existe nos ingredientes (custo gravado)</div>`}</td>
+        ${it.existe ? `<div><button class="link" data-preco="${esc(it.ing)}">💶 Atualizar preço</button></div>` : `<div class="pequeno verm">já não existe nos ingredientes (custo gravado)</div>`}</td>
       <td class="num">${numTxt(it.qtd)} ${esc(it.unidade)}</td><td class="num">${eur(it.custo)}</td>
       <td class="num" style="white-space:nowrap"><button class="lixo" data-editar="${i}" title="Alterar quantidade">✏️</button><button class="lixo" data-tirar="${i}" title="Retirar">🗑</button></td></tr>`),
     "Junte os ingredientes da receita.");
   $("rec-itens").querySelectorAll("[data-tirar]").forEach((b)=>b.onclick = ()=>{ ed.itens.splice(+b.dataset.tirar, 1); ed.editarItem = -1; ed.sujo = true; limparPesquisaIng(); renderEditor(); });
+  $("rec-itens").querySelectorAll("[data-preco]").forEach((b)=>b.onclick = ()=>editarIngrediente(b.dataset.preco, true));
   $("rec-itens").querySelectorAll("[data-editar]").forEach((b)=>b.onclick = ()=>{
     const i = +b.dataset.editar, it = ed.itens[i]; ed.editarItem = i;
     escolherIngrediente(it.ing); $("rec-ing-qtd").value = numTxt(it.qtd); $("rec-ing-add").textContent = "Atualizar"; $("rec-ing-qtd").focus(); renderEditor();
