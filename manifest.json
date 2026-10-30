@@ -1,7 +1,7 @@
 {
-  "name": "Bloco de Pedidos",
-  "short_name": "Pedidos",
-  "description": "Bloco de pedidos, contas, pagamentos e fecho de caixa do café.",
+  "name": "Café e Refeições",
+  "short_name": "Café",
+  "description": "Receitas, ingredientes, stock e pedidos do café.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",

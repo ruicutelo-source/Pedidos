@@ -1,7 +1,9 @@
-// Service worker: guarda a app no tablet para funcionar sem internet.
+// Service worker: guarda a app no aparelho para funcionar sem internet.
 // Ao publicar uma versão nova, aumente o número da versão abaixo.
-const VERSAO = "bloco-pedidos-v1.1";
-const FICHEIROS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
+const PREFIXO = "cafe-app-";
+const VERSAO = PREFIXO + "2.0.0";
+const FICHEIROS = ["./", "./index.html", "./estilo.css", "./calculos.js", "./nucleo.js", "./ingredientes.js",
+                   "./receitas.js", "./definicoes.js", "./manifest.json", "./icon-192.png", "./icon-512.png",
                    "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -12,10 +14,11 @@ self.addEventListener("install", (e) => {
     .then(() => self.skipWaiting()));
 });
 
+// Só apaga as cópias antigas DESTA app (não toca nas da app Stock, que usa o mesmo endereço)
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys()
-      .then((nomes) => Promise.all(nomes.filter((n) => n !== VERSAO).map((n) => caches.delete(n))))
+      .then((nomes) => Promise.all(nomes.filter((n) => n.startsWith(PREFIXO) && n !== VERSAO).map((n) => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
@@ -24,7 +27,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   const url = e.request.url;
-  // pedidos à base de dados e ao login passam sempre diretamente pela rede (o Firebase trata o modo offline)
+  // a base de dados e o login passam sempre diretamente pela rede (o Firebase trata o modo offline)
   if (!url.startsWith(self.location.origin) && !url.includes("gstatic.com/firebasejs")) return;
   e.respondWith(
     fetch(e.request)
@@ -33,6 +36,6 @@ self.addEventListener("fetch", (e) => {
         caches.open(VERSAO).then((c) => c.put(e.request, copia));
         return r;
       })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match("./index.html")))
+      .catch(() => caches.match(e.request, {ignoreSearch: true}).then((r) => r || caches.match("./index.html")))
   );
 });

@@ -3,231 +3,157 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bloco de Pedidos</title>
+<title>Café e Refeições</title>
 <meta name="theme-color" content="#1F3864">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>
-:root{
-  --navy:#1F3864; --navy2:#2E5597; --cab:#D9E1F2; --fundo:#F4F6FA; --cartao:#FFFFFF;
-  --txt:#262626; --cinz:#7F7F7F; --linha:#D0D5DD; --verde:#548235; --verde-cl:#E2EFDA;
-  --verm:#C00000; --verm-cl:#FCE4E4; --amarelo:#FFF8E1;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{font-family:"Segoe UI",Roboto,Calibri,Arial,sans-serif;background:var(--fundo);color:var(--txt);font-size:16px;
-     -webkit-tap-highlight-color:transparent}
-header{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;display:flex;align-items:center;
-       justify-content:space-between;padding:10px 16px}
-header h1{font-size:19px;margin:0;font-weight:600}
-header .sub{font-size:13px;opacity:.85;text-align:right}
-main{padding:12px 16px 96px;max-width:1200px;margin:0 auto}
-nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:1px solid var(--linha);display:flex}
-nav button{flex:1;border:0;background:none;padding:8px 2px 10px;font-size:13px;color:var(--cinz);display:flex;
-           flex-direction:column;align-items:center;gap:2px;min-height:62px}
-nav button .ic{font-size:22px;line-height:1}
-nav button.ativo{color:var(--navy);font-weight:700;box-shadow:inset 0 3px 0 var(--navy)}
-.ecra{display:none}.ecra.ativo{display:block}
-h2{font-size:17px;margin:14px 0 8px;color:var(--navy)}
-.grelha{display:grid;gap:12px}
-.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}
-@media (max-width:760px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
-.cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:10px;padding:12px}
-.kpi{text-align:center}.kpi .rot{font-size:11px;font-weight:700;color:var(--cinz);letter-spacing:.3px;text-transform:uppercase}
-.kpi .val{font-size:26px;font-weight:700;margin-top:4px}
-.azul{color:var(--navy)}.verde{color:var(--verde)}.verm{color:var(--verm)}.cinz{color:var(--cinz)}
-.nota{font-size:13px;color:var(--cinz);margin:6px 2px}
-.bloco{background:#fff;border:1px solid var(--linha);border-radius:10px;overflow:hidden}
-.bloco .tit{padding:9px 12px;color:#fff;font-weight:700;font-size:14px;display:flex;justify-content:space-between}
-.tit.navy{background:var(--navy)}.tit.verde{background:var(--verde)}.tit.verm{background:var(--verm)}
-table{width:100%;border-collapse:collapse}
-th{background:var(--cab);color:var(--navy);font-size:12px;text-align:left;padding:7px 10px}
-td{padding:9px 10px;border-top:1px solid #EEF0F3;font-size:15px;vertical-align:middle}
-td.num,th.num{text-align:right;white-space:nowrap}
-tr.total td{font-weight:700;border-top:2px solid var(--linha)}
-.vazio{padding:14px;color:var(--cinz);font-size:14px;text-align:center}
-.itens{font-size:13px;color:#555}
-button.bt{border:0;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:600;background:var(--navy);color:#fff;
-          min-height:48px;cursor:pointer}
-button.bt.sec{background:#fff;color:var(--navy);border:1px solid var(--navy)}
-button.bt.verde{background:var(--verde)}button.bt.verm{background:var(--verm)}
-button.bt:disabled{opacity:.4}
-button.mini{border:1px solid var(--linha);background:#fff;border-radius:8px;min-width:44px;min-height:40px;font-size:18px;cursor:pointer}
-button.lixo{border:0;background:none;font-size:20px;min-width:44px;min-height:40px;cursor:pointer}
-input[type=text],input[type=number],input[type=search],input[type=password]{font-size:17px;padding:11px 12px;border:1px solid var(--linha);
-          border-radius:8px;width:100%;background:#fff}
-input:focus{outline:2px solid var(--navy2);border-color:var(--navy2)}
-.linha{display:flex;gap:10px;align-items:center}
-.cresce{flex:1}
-.sugestoes{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--linha);border-radius:8px;
-           margin-top:4px;z-index:4;max-height:300px;overflow:auto;box-shadow:0 6px 18px rgba(0,0,0,.12)}
-.sugestoes div{padding:12px;border-top:1px solid #EEF0F3;cursor:pointer;font-size:16px}
-.sugestoes div:first-child{border-top:0}
-.sugestoes div.novo{color:var(--navy);font-weight:700}
-.rel{position:relative}
-.produtos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
-.produtos button{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:12px 8px;min-height:68px;
-                 font-size:15px;cursor:pointer;text-align:center}
-.produtos button b{display:block;font-size:13px;color:var(--cinz);font-weight:600;margin-top:4px}
-.produtos button:active{background:var(--cab)}
-.chip{display:inline-block;background:var(--cab);color:var(--navy);border-radius:14px;padding:3px 10px;font-size:13px;font-weight:600}
-.estado-aberto{color:var(--verm);font-weight:700}.estado-pago{color:var(--verde)}
-.sel{background:var(--verde-cl)}
-.chk{width:24px;height:24px}
-.modal-fundo{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
-.modal-fundo.aberto{display:flex}
-.modal{background:#fff;border-radius:12px;max-width:520px;width:100%;padding:18px}
-.modal h3{margin:0 0 10px;color:var(--navy)}
-.modal .acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 18px;
-       border-radius:8px;font-size:15px;z-index:30;display:none;max-width:90%}
-.seletor{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
-.seletor button{border:1px solid var(--navy);background:#fff;color:var(--navy);border-radius:18px;padding:8px 14px;font-size:14px;cursor:pointer}
-.seletor button.ativo{background:var(--navy);color:#fff}
-.aviso{background:var(--amarelo);border:1px solid #E6C200;border-radius:8px;padding:10px 12px;font-size:14px;margin:8px 0}
-</style>
+<link rel="stylesheet" href="estilo.css">
 </head>
 <body>
 <header>
-  <h1>☕ Bloco de Pedidos</h1>
-  <div class="sub"><div id="hdr-data"></div><div id="hdr-dia"></div></div>
+  <h1>☕ Café e Refeições</h1>
+  <div class="sub"><div id="hdr-data"></div><div id="hdr-user"></div></div>
 </header>
 
 <main>
-<!-- ======================= INÍCIO ======================= -->
-<section class="ecra ativo" id="ecra-inicio">
-  <div class="nota" id="ini-modo"></div>
+<!-- ======================= INÍCIO (administrador) ======================= -->
+<section class="ecra" id="ecra-inicio">
   <div class="grelha g4">
-    <div class="cartao kpi"><div class="rot">Vendido no dia</div><div class="val azul" id="k-vendido"></div></div>
-    <div class="cartao kpi"><div class="rot">Recebido no dia</div><div class="val verde" id="k-recebido"></div></div>
-    <div class="cartao kpi"><div class="rot">Em falta (do dia)</div><div class="val verm" id="k-falta"></div></div>
-    <div class="cartao kpi"><div class="rot">Transitado</div><div class="val verm" id="k-transitado"></div></div>
+    <div class="cartao kpi"><div class="rot">Ingredientes</div><div class="val azul" id="ini-n-ing"></div></div>
+    <div class="cartao kpi"><div class="rot">Receitas</div><div class="val azul" id="ini-n-rec"></div></div>
+    <div class="cartao kpi"><div class="rot">Lucro % s/ custo médio</div><div class="val verde" id="ini-lucro"></div></div>
+    <div class="cartao kpi"><div class="rot">Custos por atualizar</div><div class="val" id="ini-desat"></div></div>
   </div>
-  <div class="nota" id="ini-ultimo"></div>
-  <div class="grelha g2" style="margin-top:10px">
-    <div class="bloco"><div class="tit verm"><span>PAGAMENTOS EM FALTA</span><span id="ini-falta-tot"></span></div>
-      <div id="ini-falta"></div></div>
-    <div>
-      <div class="bloco"><div class="tit verde"><span>RECEBIDO NO DIA</span><span id="ini-rec-tot"></span></div>
-        <div id="ini-rec"></div></div>
-      <div class="bloco" style="margin-top:12px"><div class="tit navy"><span>MAIS VENDIDOS NO DIA</span></div>
-        <div id="ini-top"></div></div>
-    </div>
-  </div>
+  <div class="nota">O painel completo (café do dia, stock, compras e vendas) chega nas próximas fases.</div>
+  <h2>Todas as receitas</h2>
+  <div class="bloco rolar"><div id="ini-receitas"></div></div>
 </section>
 
-<!-- ======================= PEDIDO ======================= -->
-<section class="ecra" id="ecra-pedido">
-  <h2>Novo pedido</h2>
-  <div class="grelha g2">
-    <div>
-      <div class="rel">
-        <input type="search" id="ped-cliente" placeholder="Cliente — comece a escrever…" autocomplete="off">
-        <div class="sugestoes" id="ped-sug" style="display:none"></div>
-      </div>
-      <div class="nota" id="ped-cliente-info"></div>
-      <input type="search" id="ped-filtro" placeholder="Procurar produto…" autocomplete="off" style="margin-top:8px">
-      <div class="produtos" id="ped-produtos"></div>
-    </div>
-    <div>
-      <div class="bloco"><div class="tit navy"><span>PEDIDO</span><span id="ped-cli-tit"></span></div>
-        <div id="ped-carrinho"></div></div>
-      <div class="linha" style="margin-top:10px">
-        <button class="bt sec" id="ped-limpar">Limpar</button>
-        <button class="bt cresce" id="ped-registar">Registar pedido</button>
-      </div>
-    </div>
-  </div>
-  <h2>Pedidos do dia</h2>
-  <div class="bloco"><div id="ped-lista"></div></div>
-</section>
-
-<!-- ======================= CONTAS ======================= -->
-<section class="ecra" id="ecra-contas">
-  <h2>Contas em aberto</h2>
-  <div class="nota">Selecione um ou mais clientes para pagar em conjunto.</div>
-  <input type="search" id="cnt-filtro" placeholder="Procurar cliente…" autocomplete="off">
-  <div class="grelha g2" style="margin-top:10px">
-    <div class="bloco"><div id="cnt-lista"></div></div>
-    <div>
-      <div class="bloco"><div class="tit navy"><span>A LIQUIDAR</span><span id="cnt-sel-tot"></span></div>
-        <div id="cnt-sel"></div></div>
-      <button class="bt verde" id="cnt-pagar" style="width:100%;margin-top:10px">Confirmar pagamento</button>
-    </div>
-  </div>
-  <h2>Pagamentos do dia</h2>
-  <div class="bloco"><div id="cnt-pagos"></div></div>
-</section>
-
-<!-- ======================= APURO / FECHO ======================= -->
-<section class="ecra" id="ecra-apuro">
-  <h2>Apuro</h2>
-  <div class="seletor" id="apu-seletor"></div>
-  <div class="nota" id="apu-desc"></div>
-  <div class="grelha g4">
-    <div class="cartao kpi"><div class="rot">Vendido</div><div class="val azul" id="a-vendido"></div></div>
-    <div class="cartao kpi"><div class="rot">Recebido</div><div class="val verde" id="a-recebido"></div></div>
-    <div class="cartao kpi"><div class="rot">Em falta (do dia)</div><div class="val verm" id="a-falta"></div></div>
-    <div class="cartao kpi"><div class="rot">Transitado</div><div class="val verm" id="a-transitado"></div></div>
-  </div>
-  <div class="grelha g2" style="margin-top:12px">
-    <div class="bloco"><div class="tit verde"><span>RECEBIDO</span><span id="a-rec-tot"></span></div><div id="a-rec"></div></div>
-    <div class="bloco"><div class="tit verm"><span>PAGAMENTOS EM FALTA</span><span id="a-falta-tot"></span></div><div id="a-falta-lista"></div></div>
-  </div>
-  <div id="apu-fechar-zona" style="margin-top:14px">
-    <button class="bt" id="apu-fechar" style="width:100%">🔒 Fechar o dia</button>
-    <div class="nota">O que ficar por pagar transita automaticamente para o dia seguinte.</div>
-  </div>
-  <h2>Registo de fechos</h2>
-  <div class="bloco"><div id="apu-hist"></div></div>
-</section>
-
-<!-- ======================= DEFINIÇÕES ======================= -->
-<section class="ecra" id="ecra-def">
-  <h2>Produtos</h2>
-  <div class="linha">
-    <input type="text" id="def-prod-nome" placeholder="Nome do produto" class="cresce">
-    <input type="text" inputmode="decimal" id="def-prod-preco" placeholder="Preço (ex.: 1,10)" style="max-width:150px">
-    <button class="bt" id="def-prod-add">Adicionar</button>
-  </div>
-  <div class="nota">Mudar um preço só afeta os pedidos feitos a partir desse momento.</div>
-  <div class="bloco"><div id="def-produtos"></div></div>
-
-  <h2>Clientes</h2>
-  <div class="linha">
-    <input type="text" id="def-cli-nome" placeholder="Nome do cliente" class="cresce">
-    <button class="bt" id="def-cli-add">Adicionar</button>
-  </div>
-  <div class="bloco" style="margin-top:8px"><div id="def-clientes"></div></div>
-
-  <h2>Cópias de segurança</h2>
+<!-- ======================= CAFÉ ======================= -->
+<section class="ecra" id="ecra-cafe">
+  <h2>Café</h2>
   <div class="cartao">
-    <div class="nota" style="margin-top:0">Os dados ficam guardados neste tablet. Faça uma cópia regularmente (por exemplo, a cada fecho).</div>
-    <div class="linha" style="flex-wrap:wrap">
-      <button class="bt" id="def-backup">Guardar cópia de segurança</button>
-      <button class="bt sec" id="def-restaurar">Restaurar cópia</button>
-      <button class="bt sec" id="def-csv">Exportar para Excel (CSV)</button>
-      <input type="file" id="def-ficheiro" accept=".json,application/json" style="display:none">
+    <p style="margin-top:0"><b>Pedidos, contas e fecho do dia</b> chegam na fase 3 desta app.</p>
+    <p class="nota" style="margin-bottom:0">Até lá, continue a usar a app atual do café.</p>
+  </div>
+</section>
+
+<!-- ======================= RECEITAS ======================= -->
+<section class="ecra" id="ecra-receitas">
+  <div id="rec-vista-lista">
+    <div class="barra">
+      <input type="search" id="rec-filtro" placeholder="Procurar receita…" autocomplete="off">
+      <button class="bt" id="rec-nova">+ Nova receita</button>
+      <button class="bt sec" id="rec-atualizar">Atualizar custos</button>
     </div>
-    <div class="nota" id="def-ult-backup"></div>
+    <div id="rec-aviso-desat"></div>
+    <div class="bloco rolar"><div id="rec-lista"></div></div>
+    <div class="nota">Toque numa receita para a abrir. O PVP é o gravado na receita; "Atualizar custos" recalcula todas com os preços atuais dos ingredientes.</div>
+  </div>
+
+  <div id="rec-vista-editor" style="display:none">
+    <div class="linha quebra" style="justify-content:space-between">
+      <h2 id="rec-ed-tit" style="margin:6px 0">Nova receita</h2>
+      <button class="bt sec peq" id="rec-voltar">◀ Voltar à lista</button>
+    </div>
+    <div class="grelha g2">
+      <div>
+        <div class="linha quebra">
+          <div class="cresce" style="min-width:240px"><label class="campo" for="rec-nome">Nome da receita</label>
+            <input type="text" id="rec-nome" autocomplete="off" placeholder="Ex.: Bifanas à moda do Porto"></div>
+          <div style="width:120px"><label class="campo" for="rec-id">ID</label><input type="text" id="rec-id" readonly></div>
+          <div style="width:100px"><label class="campo" for="rec-doses">Doses</label>
+            <input type="text" id="rec-doses" inputmode="decimal" autocomplete="off"></div>
+        </div>
+
+        <h3>Ingredientes</h3>
+        <div class="linha quebra" style="align-items:flex-end">
+          <div class="cresce rel" style="min-width:220px"><label class="campo" for="rec-ing-busca">Ingrediente (nome ou marca)</label>
+            <input type="search" id="rec-ing-busca" autocomplete="off" placeholder="Comece a escrever…">
+            <div class="sugestoes" id="rec-ing-sug" style="display:none"></div></div>
+          <div style="width:150px"><label class="campo" for="rec-ing-qtd">Quantidade</label>
+            <div class="qtd-uni"><input type="text" id="rec-ing-qtd" inputmode="decimal" autocomplete="off"><span id="rec-ing-uni"></span></div></div>
+          <button class="bt" id="rec-ing-add">Adicionar</button>
+        </div>
+        <div class="nota" id="rec-ing-escolhido"></div>
+        <div class="bloco rolar" style="margin-top:8px"><div id="rec-itens"></div></div>
+        <div class="grelha g2" style="margin-top:10px">
+          <div class="cartao kpi"><div class="rot">Custo total</div><div class="val azul" id="rec-custo-total"></div></div>
+          <div class="cartao kpi"><div class="rot">Custo por dose</div><div class="val azul" id="rec-custo-dose"></div></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:6px">Preço de venda</h3>
+        <div class="campos4">
+          <div><label class="campo" for="rec-gop">G. Oper. (%)</label><input type="text" id="rec-gop" inputmode="decimal"></div>
+          <div><label class="campo" for="rec-gnop">G. Não Oper. (%)</label><input type="text" id="rec-gnop" inputmode="decimal"></div>
+          <div><label class="campo" for="rec-margem">Margem (%)</label><input type="text" id="rec-margem" inputmode="decimal"></div>
+          <div><label class="campo" for="rec-iva">IVA (%)</label><input type="text" id="rec-iva" inputmode="decimal"></div>
+          <div><label class="campo" for="rec-mo">Mão de obra (€)</label><input type="text" id="rec-mo" inputmode="decimal"></div>
+        </div>
+        <div class="pvp" style="margin-top:12px">
+          <div><div class="pequeno" style="color:#C9D6E3">PVP SUGERIDO (por dose)</div><div class="val" id="rec-pvp"></div></div>
+          <div class="det" id="rec-pvp-det"></div>
+        </div>
+
+        <label class="campo" for="rec-modo">Modo de preparação</label>
+        <textarea id="rec-modo"></textarea>
+
+        <label class="campo">Foto</label>
+        <div class="foto-caixa" id="rec-foto-caixa"><span class="nota">Sem foto</span></div>
+        <div class="linha quebra" style="margin-top:8px">
+          <button class="bt sec peq" id="rec-foto-escolher">📷 Escolher foto</button>
+          <button class="bt sec peq" id="rec-foto-remover">Remover foto</button>
+          <input type="file" id="rec-foto-ficheiro" accept="image/*" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <div class="linha quebra" style="margin-top:16px;justify-content:flex-end">
+      <button class="bt verm" id="rec-apagar">Apagar receita</button>
+      <button class="bt sec" id="rec-cancelar">Cancelar</button>
+      <button class="bt verde" id="rec-gravar">Gravar receita</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= INGREDIENTES ======================= -->
+<section class="ecra" id="ecra-ingredientes">
+  <div class="barra">
+    <input type="search" id="ing-filtro" placeholder="Procurar ingrediente ou marca…" autocomplete="off">
+    <button class="bt" id="ing-novo">+ Novo ingrediente</button>
+  </div>
+  <div class="nota" id="ing-contagem"></div>
+  <div class="bloco rolar"><div id="ing-lista"></div></div>
+</section>
+
+<!-- ======================= DEFINIÇÕES (administrador) ======================= -->
+<section class="ecra" id="ecra-def">
+  <h2>Importar os dados do Excel</h2>
+  <div class="cartao">
+    <div class="nota" style="margin-top:0">Escolha o ficheiro <b>dados_excel.json</b> que lhe enviei. Os ingredientes, as receitas (com as fotos),
+      as compras, os mínimos de stock e os clientes da app passam a ser os do Excel.</div>
+    <button class="bt" id="def-importar">Escolher ficheiro e importar</button>
+    <input type="file" id="def-importar-ficheiro" accept=".json,application/json" style="display:none">
+    <div class="nota" id="def-importar-estado"></div>
   </div>
   <h2>Sessão</h2>
   <div class="cartao"><div class="nota" id="def-modo" style="margin-top:0"></div>
-    <button class="bt sec" id="def-sair" style="display:none">Terminar sessão</button></div>
-  <h2>Zona de perigo</h2>
-  <div class="cartao"><button class="bt verm" id="def-apagar-tudo">Apagar todos os dados</button></div>
-  <div class="nota" style="margin-top:14px">Bloco de Pedidos · versão 1.1</div>
+    <button class="bt sec" id="def-sair">Terminar sessão</button></div>
+  <div class="nota" style="margin-top:14px" id="def-versao"></div>
+</section>
+
+<!-- ======================= SESSÃO (caixa) ======================= -->
+<section class="ecra" id="ecra-sessao">
+  <h2>Sessão</h2>
+  <div class="cartao"><div class="nota" id="ses-modo" style="margin-top:0"></div>
+    <button class="bt sec" id="ses-sair">Terminar sessão</button></div>
 </section>
 </main>
 
-<nav id="nav">
-  <button data-ecra="inicio" class="ativo"><span class="ic">📊</span>Início</button>
-  <button data-ecra="pedido"><span class="ic">➕</span>Pedido</button>
-  <button data-ecra="contas"><span class="ic">💶</span>Contas</button>
-  <button data-ecra="apuro"><span class="ic">🧾</span>Apuro</button>
-  <button data-ecra="def"><span class="ic">⚙️</span>Definições</button>
-</nav>
+<nav id="nav"></nav>
 
 <div class="modal-fundo" id="modal"><div class="modal">
   <h3 id="modal-tit"></h3><div id="modal-corpo"></div>
@@ -237,605 +163,20 @@ input:focus{outline:2px solid var(--navy2);border-color:var(--navy2)}
 
 <div id="ecra-login" style="display:none;position:fixed;inset:0;z-index:15;background:var(--fundo);align-items:center;justify-content:center;padding:16px">
   <div class="cartao" style="max-width:420px;width:100%;padding:22px">
-    <h2 style="margin-top:0">☕ Bloco de Pedidos</h2>
-    <div class="nota">Entre com o email e a palavra-passe criados no Firebase.</div>
-    <input type="text" id="login-email" placeholder="Email" autocomplete="username" inputmode="email" style="margin-top:10px">
-    <input type="password" id="login-pass" placeholder="Palavra-passe" autocomplete="current-password"
-           style="margin-top:10px;font-size:17px;padding:11px 12px;border:1px solid var(--linha);border-radius:8px;width:100%">
+    <h2 style="margin-top:0">☕ Café e Refeições</h2>
+    <div class="nota">Entre com o seu email e palavra-passe.</div>
+    <input type="email" id="login-email" placeholder="Email" autocomplete="username" style="margin-top:10px">
+    <input type="password" id="login-pass" placeholder="Palavra-passe" autocomplete="current-password" style="margin-top:10px">
     <button class="bt" id="login-entrar" style="width:100%;margin-top:14px">Entrar</button>
     <div class="nota verm" id="login-erro"></div>
   </div>
 </div>
 
-<script>
-"use strict";
-/* =====================================================================
-   CONFIGURAÇÃO FIREBASE — cole aqui os valores do seu projeto (Definições do projeto → As suas apps).
-   Com os campos vazios, a app funciona em MODO LOCAL (dados só neste aparelho).
-   ===================================================================== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCjcaeYOl7IVZwIXKeo8eXzfNV0INlGmac",
-  authDomain: "bloco-pedidos-cafe.firebaseapp.com",
-  projectId: "bloco-pedidos-cafe",
-  storageBucket: "bloco-pedidos-cafe.firebasestorage.app",
-  messagingSenderId: "1036647485085",
-  appId: "1:1036647485085:web:a3f05d60475ac7177b0e74"
-};
-/* =====================================================================
-   DADOS
-   produtos:   {id, nome, preco, ativo}
-   clientes:   {id, nome}
-   pedidos:    {id, ts, cliente, produto, qtd, preco, pagId}   (o preço fica gravado no momento do pedido)
-   pagamentos: {id, ts, cliente, valor, pedidos:[ids]}
-   fechos:     {id, ts, ini, vendido, recebido, faltaDia, transita, transitadoAnt, nPedidos, recebidos[], emFalta[], top[]}
-   O "dia" é tudo o que aconteceu depois do último fecho.
-   ===================================================================== */
-const MODO_FIREBASE = !!(FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.apiKey);
-const COLS = ["produtos","clientes","pedidos","pagamentos","fechos"];
-const PRODUTOS_INICIAIS = [["Café",0.80],["Carioca",0.80],["Descafeinado",0.85],["Galão",1.40],["Meia de leite",1.30],
-  ["Chá",1.00],["Água 0,5 L",1.00],["Sumo natural",2.50],["Refrigerante",1.60],["Torrada",2.60],["Tosta mista",3.00],
-  ["Pastel de nata",1.20],["Croissant",1.50]];
-const opsProdutosIniciais = ()=> PRODUTOS_INICIAIS.map((p,i)=>({tipo:"set",col:"produtos",id:"p"+(i+1),dados:{nome:p[0],preco:p[1],ativo:true}}));
-let D = {produtos:[],clientes:[],pedidos:[],pagamentos:[],fechos:[]};
-let seqId = 0;
-function novoId(pref){ seqId++; return pref + Date.now().toString(36) + Math.random().toString(36).slice(2,6) + seqId.toString(36); }
-let ultimoTs = 0;
-function agora(){ let t = Date.now(); if(t <= ultimoTs) t = ultimoTs + 1; ultimoTs = t; return t; }  // ordem garantida
-function ordenar(){
-  D.pedidos.sort((a,b)=>a.ts-b.ts); D.pagamentos.sort((a,b)=>a.ts-b.ts); D.fechos.sort((a,b)=>a.ts-b.ts);
-  const m = D.pedidos.length ? D.pedidos[D.pedidos.length-1].ts : 0;
-  ultimoTs = Math.max(ultimoTs, m, ...D.pagamentos.map(p=>p.ts), ...D.fechos.map(f=>f.ts));
-}
-let renderAgendado = false;
-function agendarRender(){ if(renderAgendado) return; renderAgendado = true; requestAnimationFrame(()=>{ renderAgendado=false; render(); }); }
-
-/* ---------- modo local: localStorage (só este aparelho) ---------- */
-const Local = {
-  CHAVE: "bloco_pedidos_dados_v2",
-  ler(){ try{ const t = localStorage.getItem(this.CHAVE); if(t){ const d = JSON.parse(t); if(d && Array.isArray(d.pedidos)) return d; } }catch(e){} return null; },
-  gravar(){ try{ localStorage.setItem(this.CHAVE, JSON.stringify(D)); }catch(e){ aviso("Não foi possível guardar os dados neste aparelho: "+e.message); } },
-  iniciar(){
-    const d = this.ler();
-    if(d){ for(const c of COLS) D[c] = d[c] || []; } else { this.aplicar(opsProdutosIniciais(), true); }
-    ordenar(); mostrarLogin(false); render();
-    window.addEventListener("storage",(e)=>{ if(e.key===this.CHAVE){ const n = this.ler(); if(n){ for(const c of COLS) D[c] = n[c]||[]; ordenar(); render(); } } });
-  },
-  aplicar(ops, semRender){
-    for(const o of ops){
-      const arr = D[o.col], i = arr.findIndex(x=>x.id===o.id);
-      if(o.tipo==="set"){ const obj = {...o.dados, id:o.id}; if(i>=0) arr[i] = obj; else arr.push(obj); }
-      else if(o.tipo==="update"){ if(i>=0) Object.assign(arr[i], o.dados); }
-      else if(o.tipo==="del"){ if(i>=0) arr.splice(i,1); }
-    }
-    ordenar(); this.gravar(); if(!semRender) agendarRender();
-  },
-  utilizador(){ return null; }
-};
-
-/* ---------- modo partilhado: Firebase (Firestore + login) ---------- */
-const Nuvem = {
-  db:null, auth:null, subs:[], recebido:{},
-  iniciar(){
-    firebase.initializeApp(FIREBASE_CONFIG);
-    this.auth = firebase.auth();
-    if(location.search.includes("emu=1")) this.auth.useEmulator("http://127.0.0.1:9099");   // só para testes
-    this.db = firebase.firestore();
-    this.db.enablePersistence({synchronizeTabs:true}).catch(()=>{});     // funciona sem internet
-    this.auth.onAuthStateChanged((u)=>{
-      if(u){ mostrarLogin(false); this.subscrever(); }
-      else { this.parar(); for(const c of COLS) D[c] = []; mostrarLogin(true); }
-      render();
-    });
-  },
-  subscrever(){
-    this.parar(); this.recebido = {};
-    for(const c of COLS){
-      this.subs.push(this.db.collection(c).onSnapshot((snap)=>{
-        D[c] = snap.docs.map(d=>({...d.data(), id:d.id})); ordenar(); this.recebido[c] = true;
-        if(c==="produtos" && snap.empty && (!snap.metadata.fromCache || location.search.includes("emu=1"))) this.aplicar(opsProdutosIniciais());
-        agendarRender();
-      }, (err)=>aviso("Sem acesso aos dados ("+err.code+"). Confirme que este email está autorizado nas regras do Firebase.")));
-    }
-  },
-  parar(){ this.subs.forEach(u=>u()); this.subs = []; },
-  aplicar(ops){
-    for(let i=0; i<ops.length; i+=450){
-      const lote = this.db.batch();
-      for(const o of ops.slice(i,i+450)){
-        const ref = this.db.collection(o.col).doc(o.id);
-        if(o.tipo==="set") lote.set(ref, o.dados); else if(o.tipo==="update") lote.update(ref, o.dados); else lote.delete(ref);
-      }
-      lote.commit().catch((e)=>aviso("Não foi possível gravar na base de dados: "+e.message));   // sem internet fica em fila e envia depois
-    }
-  },
-  utilizador(){ return this.auth && this.auth.currentUser ? this.auth.currentUser.email : null; },
-  entrar(email, pass){ return this.auth.signInWithEmailAndPassword(email, pass); },
-  sair(){ return this.auth.signOut(); }
-};
-const Store = MODO_FIREBASE ? Nuvem : Local;
-const gravar = (ops)=>{ if(ops.length) Store.aplicar(ops); };
-
-/* ---------- utilitários ---------- */
-const $ = (id)=>document.getElementById(id);
-const eur = (v)=> (Math.round((v||0)*100)/100).toLocaleString("pt-PT",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
-const r2 = (v)=> Math.round(v*100)/100;
-const norm = (s)=> (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
-const esc = (s)=> String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const hora = (ts)=> new Date(ts).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
-const dataCurta = (ts)=> new Date(ts).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit",year:"numeric"});
-const total = (p)=> r2(p.qtd*p.preco);
-const soma = (arr,f)=> r2(arr.reduce((a,x)=>a+f(x),0));
-
-/* ---------- regras ---------- */
-const ultimoFecho = ()=> D.fechos.length ? D.fechos[D.fechos.length-1] : null;
-const inicioDia = ()=> { const f = ultimoFecho(); return f ? f.ts : 0; };
-const pedidosEntre = (a,b)=> D.pedidos.filter(p=>p.ts>a && p.ts<=b);
-const pagamentosEntre = (a,b)=> D.pagamentos.filter(p=>p.ts>a && p.ts<=b);
-const emAberto = ()=> D.pedidos.filter(p=>!p.pagId);
-function porCliente(peds){
-  const m = new Map();
-  for(const p of peds){
-    if(!m.has(p.cliente)) m.set(p.cliente,{cliente:p.cliente,valor:0,itens:new Map(),pedidos:[]});
-    const c = m.get(p.cliente); c.valor = r2(c.valor+total(p)); c.pedidos.push(p);
-    c.itens.set(p.produto,(c.itens.get(p.produto)||0)+p.qtd);
-  }
-  return [...m.values()].map(c=>({...c,itensTxt:[...c.itens].map(([n,q])=>q+" "+n).join(" · ")}))
-                        .sort((a,b)=>b.valor-a.valor || a.cliente.localeCompare(b.cliente,"pt"));
-}
-function maisVendidos(peds){
-  const m = new Map();
-  for(const p of peds){ const x = m.get(p.produto)||{produto:p.produto,qtd:0,valor:0}; x.qtd+=p.qtd; x.valor=r2(x.valor+total(p)); m.set(p.produto,x); }
-  return [...m.values()].sort((a,b)=>b.qtd-a.qtd || b.valor-a.valor);
-}
-/* apuro de um período (a,b]; "falta" conta o que está em aberto agora */
-function apuroAtual(){
-  const a = inicioDia(), b = Infinity;
-  const peds = pedidosEntre(a,b), pags = pagamentosEntre(a,b);
-  const abertos = emAberto();
-  return {vendido:soma(peds,total), recebido:soma(pags,p=>p.valor),
-          faltaDia:soma(abertos.filter(p=>p.ts>a),total), transitado:soma(abertos.filter(p=>p.ts<=a),total),
-          nPedidos:peds.length, recebidos:pags.map(p=>({cliente:p.cliente,valor:p.valor,ts:p.ts,id:p.id})),
-          emFalta:porCliente(abertos), top:maisVendidos(peds)};
-}
-function haMovimentosNoDia(){ const a = inicioDia(); return D.pedidos.some(p=>p.ts>a) || D.pagamentos.some(p=>p.ts>a); }
-
-/* ---------- ações (cada ação produz operações gravadas de uma vez) ---------- */
-const idCliente = (nome)=> "c_" + norm(nome).replace(/[^a-z0-9]+/g,"_").slice(0,80);
-function opsCliente(nome){
-  nome = nome.trim().replace(/\s+/g," ");
-  const ex = D.clientes.find(c=>norm(c.nome)===norm(nome));
-  if(ex) return {nome:ex.nome, ops:[]};
-  return {nome, ops:[{tipo:"set",col:"clientes",id:idCliente(nome),dados:{nome}}]};
-}
-function registarPedido(cliente, linhas){
-  const c = opsCliente(cliente); const ops = c.ops.slice();
-  for(const l of linhas){
-    const prod = D.produtos.find(p=>p.id===l.id);
-    ops.push({tipo:"set",col:"pedidos",id:novoId("o"),dados:{ts:agora(),cliente:c.nome,produto:prod.nome,qtd:l.qtd,preco:prod.preco,pagId:null}});
-  }
-  gravar(ops);
-}
-function apagarPedido(id){
-  const p = D.pedidos.find(x=>x.id===id);
-  if(!p || p.pagId || p.ts <= inicioDia()) return false;
-  gravar([{tipo:"del",col:"pedidos",id}]); return true;
-}
-function pagar(clientes){
-  const ops = [], feitos = [];
-  for(const c of clientes){
-    const abertos = D.pedidos.filter(p=>p.cliente===c && !p.pagId);
-    if(!abertos.length) continue;
-    const pag = {id:novoId("g"),ts:agora(),cliente:c,valor:soma(abertos,total),pedidos:abertos.map(p=>p.id)};
-    ops.push({tipo:"set",col:"pagamentos",id:pag.id,dados:{ts:pag.ts,cliente:c,valor:pag.valor,pedidos:pag.pedidos}});
-    for(const p of abertos) ops.push({tipo:"update",col:"pedidos",id:p.id,dados:{pagId:pag.id}});
-    feitos.push(pag);
-  }
-  gravar(ops); return feitos;
-}
-function anularPagamento(id){
-  const g = D.pagamentos.find(p=>p.id===id);
-  if(!g || g.ts <= inicioDia()) return false;
-  const ops = [{tipo:"del",col:"pagamentos",id}];
-  for(const p of D.pedidos) if(p.pagId===id) ops.push({tipo:"update",col:"pedidos",id:p.id,dados:{pagId:null}});
-  gravar(ops); return true;
-}
-function fecharDia(){
-  const ap = apuroAtual(), ini = inicioDia();
-  const f = {ts:agora(),ini,vendido:ap.vendido,recebido:ap.recebido,faltaDia:ap.faltaDia,
-             transita:r2(ap.faltaDia+ap.transitado),transitadoAnt:ap.transitado,nPedidos:ap.nPedidos,
-             recebidos:ap.recebidos.map(({cliente,valor})=>({cliente,valor})),
-             emFalta:ap.emFalta.map(c=>({cliente:c.cliente,valor:c.valor,itensTxt:c.itensTxt})),
-             top:ap.top.map(t=>({produto:t.produto,qtd:t.qtd,valor:t.valor}))};
-  gravar([{tipo:"set",col:"fechos",id:novoId("f"),dados:f}]); return f;
-}
-function reabrirUltimoFecho(){ const f = ultimoFecho(); if(!f) return false; gravar([{tipo:"del",col:"fechos",id:f.id}]); return true; }
-const semId = (o)=>{ const {id, ...r} = o; return r; };
-function opsApagarTudo(){ const ops = []; for(const c of COLS) for(const x of D[c]) ops.push({tipo:"del",col:c,id:x.id}); return ops; }
-
-/* ---------- janela / avisos ---------- */
-function janela(tit, corpoHtml, acoes){
-  $("modal-tit").textContent = tit; $("modal-corpo").innerHTML = corpoHtml;
-  const z = $("modal-acoes"); z.innerHTML = "";
-  for(const a of acoes){
-    const b = document.createElement("button"); b.className = "bt "+(a.classe||""); b.textContent = a.texto;
-    if(a.id) b.id = a.id;
-    b.onclick = ()=>{ fecharJanela(); a.acao && a.acao(); }; z.appendChild(b);
-  }
-  $("modal").classList.add("aberto");
-}
-function fecharJanela(){ $("modal").classList.remove("aberto"); }
-function confirmar(tit, html, txtOk, acao, classe){
-  janela(tit, html, [{texto:"Cancelar",classe:"sec",id:"modal-cancelar"},{texto:txtOk,classe:classe||"",id:"modal-ok",acao}]);
-}
-function aviso(txt){ janela("Aviso", "<p>"+esc(txt)+"</p>", [{texto:"OK",id:"modal-ok"}]); }
-let toastT;
-function toast(txt){ const t=$("toast"); t.textContent=txt; t.style.display="block"; clearTimeout(toastT); toastT=setTimeout(()=>t.style.display="none",2600); }
-
-/* ---------- navegação ---------- */
-let ecraAtual = "inicio";
-function mostrar(e){
-  ecraAtual = e;
-  document.querySelectorAll(".ecra").forEach(s=>s.classList.toggle("ativo", s.id==="ecra-"+e));
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("ativo", b.dataset.ecra===e));
-  render(); window.scrollTo(0,0);
-}
-document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>mostrar(b.dataset.ecra));
-
-/* ---------- tabelas ---------- */
-function tabela(cab, linhas, vazioTxt, rodape){
-  if(!linhas.length) return `<div class="vazio">${vazioTxt}</div>`;
-  return `<table><thead><tr>${cab.map(c=>`<th class="${c.num?"num":""}">${c.t}</th>`).join("")}</tr></thead>
-          <tbody>${linhas.join("")}${rodape||""}</tbody></table>`;
-}
-
-/* ======================= INÍCIO ======================= */
-function renderInicio(){
-  const f = ultimoFecho();
-  const mostrarFechado = f && !haMovimentosNoDia();
-  let v;
-  if(mostrarFechado){
-    v = {vendido:f.vendido, recebido:f.recebido, faltaDia:soma(emAberto().filter(p=>p.ts>f.ini && p.ts<=f.ts),total),
-         transitado:soma(emAberto().filter(p=>p.ts<=f.ini),total), recebidos:f.recebidos, top:f.top, nPedidos:f.nPedidos};
-    $("ini-modo").innerHTML = `<span class="chip">Dia fechado em ${dataCurta(f.ts)}</span> O próximo pedido ou pagamento abre o dia seguinte.`;
-    $("ini-ultimo").textContent = "";
-  }else{
-    v = apuroAtual();
-    $("ini-modo").innerHTML = `<span class="chip">Dia em curso</span> ${v.nPedidos} ${v.nPedidos===1?"pedido":"pedidos"}`;
-    $("ini-ultimo").textContent = f ? `Último fecho: ${dataCurta(f.ts)} · vendido ${eur(f.vendido)} · recebido ${eur(f.recebido)} · transitou ${eur(f.transita)}` : "Ainda sem fechos.";
-  }
-  $("k-vendido").textContent = eur(v.vendido); $("k-recebido").textContent = eur(v.recebido);
-  $("k-falta").textContent = eur(v.faltaDia); $("k-transitado").textContent = eur(v.transitado);
-  const falta = porCliente(emAberto());
-  $("ini-falta-tot").textContent = eur(soma(falta,c=>c.valor));
-  $("ini-falta").innerHTML = tabela([{t:"Cliente"},{t:"Itens em aberto"},{t:"Total",num:1}],
-    falta.map(c=>`<tr data-cli="${esc(c.cliente)}" class="lnk-conta"><td>${esc(c.cliente)}</td><td class="itens">${esc(c.itensTxt)}</td><td class="num"><b>${eur(c.valor)}</b></td></tr>`),
-    "Ninguém deve nada. 👍");
-  document.querySelectorAll("#ini-falta .lnk-conta").forEach(tr=>tr.onclick=()=>{ selecaoContas = new Set([tr.dataset.cli]); mostrar("contas"); });
-  $("ini-rec-tot").textContent = eur(v.recebido);
-  $("ini-rec").innerHTML = tabela([{t:"Cliente"},{t:"Valor",num:1}],
-    v.recebidos.map(p=>`<tr><td>${esc(p.cliente)}</td><td class="num">${eur(p.valor)}</td></tr>`), "Ainda sem pagamentos.");
-  $("ini-top").innerHTML = tabela([{t:"Produto"},{t:"Qtd",num:1},{t:"Valor",num:1}],
-    v.top.slice(0,8).map(t=>`<tr><td>${esc(t.produto)}</td><td class="num">${t.qtd}</td><td class="num">${eur(t.valor)}</td></tr>`), "Ainda sem vendas.");
-}
-
-/* ======================= PEDIDO ======================= */
-let carrinho = [];   // {id, qtd}
-let clienteSel = "";
-function sugestoesClientes(txt){
-  const n = norm(txt); if(!n) return [];
-  const nomes = new Set(D.clientes.map(c=>c.nome)); D.pedidos.forEach(p=>nomes.add(p.cliente));
-  const lista = [...nomes].filter(x=>norm(x).includes(n))
-    .sort((a,b)=>(norm(a).startsWith(n)?0:1)-(norm(b).startsWith(n)?0:1) || a.localeCompare(b,"pt"));
-  return lista.slice(0,8);
-}
-function renderSugestoes(){
-  const txt = $("ped-cliente").value, box = $("ped-sug");
-  const sug = sugestoesClientes(txt);
-  if(!txt.trim()){ box.style.display="none"; return; }
-  const existe = sug.some(s=>norm(s)===norm(txt));
-  box.innerHTML = sug.map(s=>`<div data-nome="${esc(s)}">${esc(s)}</div>`).join("") +
-                  (existe ? "" : `<div class="novo" data-nome="${esc(txt.trim())}" data-novo="1">+ Cliente novo: «${esc(txt.trim())}»</div>`);
-  box.style.display = "block";
-  box.querySelectorAll("div").forEach(d=>d.onmousedown=d.ontouchstart=(e)=>{ e.preventDefault(); escolherCliente(d.dataset.nome); });
-}
-function escolherCliente(nome){
-  clienteSel = nome.trim().replace(/\s+/g," "); $("ped-cliente").value = clienteSel; $("ped-sug").style.display="none";
-  renderPedido();
-}
-$("ped-cliente").addEventListener("input",()=>{ clienteSel=""; renderSugestoes(); renderPedidoInfo(); });
-$("ped-cliente").addEventListener("blur",()=>setTimeout(()=>{ $("ped-sug").style.display="none"; },150));
-$("ped-cliente").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ const s=sugestoesClientes(e.target.value); escolherCliente(s.find(x=>norm(x)===norm(e.target.value))||e.target.value); }});
-$("ped-filtro").addEventListener("input",()=>renderProdutos());
-function renderPedidoInfo(){
-  const nome = clienteSel || "";
-  const deve = nome ? soma(emAberto().filter(p=>p.cliente===nome),total) : 0;
-  const conhecido = nome && (D.clientes.some(c=>c.nome===nome) || D.pedidos.some(p=>p.cliente===nome));
-  $("ped-cliente-info").innerHTML = !nome ? "" : (conhecido ? (deve>0?`Tem em aberto: <b class="verm">${eur(deve)}</b>`:"Sem contas em aberto.") : "<b>Cliente novo</b> — fica guardado ao registar.");
-  $("ped-cli-tit").textContent = nome;
-}
-function renderProdutos(){
-  const n = norm($("ped-filtro").value);
-  const lista = D.produtos.filter(p=>p.ativo && (!n || norm(p.nome).includes(n))).sort((a,b)=>a.nome.localeCompare(b.nome,"pt"));
-  $("ped-produtos").innerHTML = lista.map(p=>`<button data-id="${p.id}">${esc(p.nome)}<b>${eur(p.preco)}</b></button>`).join("") ||
-    `<div class="nota">Nenhum produto encontrado.</div>`;
-  $("ped-produtos").querySelectorAll("button").forEach(b=>b.onclick=()=>{
-    const l = carrinho.find(x=>x.id===b.dataset.id); if(l) l.qtd++; else carrinho.push({id:b.dataset.id,qtd:1}); renderCarrinho();
-  });
-}
-function renderCarrinho(){
-  const linhas = carrinho.map((l,i)=>{ const p = D.produtos.find(x=>x.id===l.id);
-    return `<tr><td>${esc(p.nome)}<div class="itens">${eur(p.preco)}</div></td>
-      <td class="num" style="white-space:nowrap"><button class="mini" data-i="${i}" data-d="-1">−</button>
-      <b style="display:inline-block;min-width:30px;text-align:center">${l.qtd}</b>
-      <button class="mini" data-i="${i}" data-d="1">+</button></td>
-      <td class="num">${eur(l.qtd*p.preco)}</td></tr>`; });
-  const tot = r2(carrinho.reduce((a,l)=>a+l.qtd*D.produtos.find(x=>x.id===l.id).preco,0));
-  $("ped-carrinho").innerHTML = tabela([{t:"Produto"},{t:"Qtd",num:1},{t:"Valor",num:1}], linhas,
-    "Toque nos produtos para os juntar ao pedido.", `<tr class="total"><td>Total</td><td></td><td class="num" id="ped-total">${eur(tot)}</td></tr>`);
-  $("ped-carrinho").querySelectorAll("button.mini").forEach(b=>b.onclick=()=>{
-    const l = carrinho[+b.dataset.i]; l.qtd += +b.dataset.d; if(l.qtd<=0) carrinho.splice(+b.dataset.i,1); renderCarrinho();
-  });
-  $("ped-registar").disabled = !carrinho.length;
-}
-$("ped-limpar").onclick = ()=>{ carrinho=[]; clienteSel=""; $("ped-cliente").value=""; renderPedido(); };
-$("ped-registar").onclick = ()=>{
-  const nome = (clienteSel || $("ped-cliente").value).trim();
-  if(!nome){ aviso("Escolha ou escreva o nome do cliente."); $("ped-cliente").focus(); return; }
-  if(!carrinho.length){ aviso("Junte pelo menos um produto."); return; }
-  const n = carrinho.reduce((a,l)=>a+l.qtd,0);
-  registarPedido(nome, carrinho);
-  carrinho=[]; clienteSel=""; $("ped-cliente").value=""; $("ped-filtro").value="";
-  toast(`Pedido registado: ${nome} (${n} ${n===1?"artigo":"artigos"})`); renderPedido();
-};
-function renderListaPedidos(){
-  const a = inicioDia();
-  const peds = D.pedidos.filter(p=>p.ts>a).slice().reverse();
-  $("ped-lista").innerHTML = tabela([{t:"Hora"},{t:"Cliente"},{t:"Produto"},{t:"Qtd",num:1},{t:"Valor",num:1},{t:"Estado"},{t:""}],
-    peds.map(p=>`<tr><td>${hora(p.ts)}</td><td>${esc(p.cliente)}</td><td>${esc(p.produto)}</td><td class="num">${p.qtd}</td>
-      <td class="num">${eur(total(p))}</td><td class="${p.pagId?"estado-pago":"estado-aberto"}">${p.pagId?"Pago":"Aberto"}</td>
-      <td class="num">${p.pagId?"":`<button class="lixo" title="Apagar" data-id="${p.id}">🗑</button>`}</td></tr>`),
-    "Ainda sem pedidos hoje.");
-  $("ped-lista").querySelectorAll("button.lixo").forEach(b=>b.onclick=()=>{
-    const p = D.pedidos.find(x=>x.id===b.dataset.id);
-    confirmar("Apagar artigo", `<p>Apagar <b>${p.qtd} ${esc(p.produto)}</b> de <b>${esc(p.cliente)}</b> (${eur(total(p))})?</p>`,
-      "Apagar", ()=>{ apagarPedido(p.id); toast("Artigo apagado."); render(); }, "verm");
-  });
-}
-function renderPedido(){ renderPedidoInfo(); renderProdutos(); renderCarrinho(); renderListaPedidos(); }
-
-/* ======================= CONTAS ======================= */
-let selecaoContas = new Set();
-$("cnt-filtro").addEventListener("input",()=>renderContas());
-function renderContas(){
-  const contas = porCliente(emAberto());
-  for(const s of [...selecaoContas]) if(!contas.some(c=>c.cliente===s)) selecaoContas.delete(s);
-  const n = norm($("cnt-filtro").value);
-  const vis = contas.filter(c=>!n || norm(c.cliente).includes(n));
-  $("cnt-lista").innerHTML = tabela([{t:""},{t:"Cliente"},{t:"Itens"},{t:"Total",num:1}],
-    vis.map(c=>`<tr class="${selecaoContas.has(c.cliente)?"sel":""}" data-cli="${esc(c.cliente)}" style="cursor:pointer">
-      <td><input type="checkbox" class="chk" ${selecaoContas.has(c.cliente)?"checked":""} tabindex="-1"></td>
-      <td><b>${esc(c.cliente)}</b></td><td class="itens">${esc(c.itensTxt)}</td><td class="num">${eur(c.valor)}</td></tr>`),
-    contas.length ? "Nenhum cliente com esse nome." : "Não há contas em aberto.");
-  $("cnt-lista").querySelectorAll("tr[data-cli]").forEach(tr=>tr.onclick=()=>{
-    const c = tr.dataset.cli; selecaoContas.has(c) ? selecaoContas.delete(c) : selecaoContas.add(c); renderContas();
-  });
-  const sel = contas.filter(c=>selecaoContas.has(c.cliente));
-  const tot = soma(sel,c=>c.valor);
-  $("cnt-sel-tot").textContent = sel.length ? `${sel.length} ${sel.length===1?"conta":"contas"} · ${eur(tot)}` : "";
-  const linhas = [];
-  for(const c of sel) for(const p of c.pedidos)
-    linhas.push(`<tr><td>${sel.length>1?esc(c.cliente)+" – ":""}${esc(p.produto)}</td><td class="num">${p.qtd}</td><td class="num">${eur(total(p))}</td></tr>`);
-  $("cnt-sel").innerHTML = tabela([{t:"Artigo"},{t:"Qtd",num:1},{t:"Valor",num:1}], linhas, "Selecione os clientes a pagar.",
-    `<tr class="total"><td>A pagar</td><td></td><td class="num" id="cnt-apagar">${eur(tot)}</td></tr>`);
-  $("cnt-pagar").disabled = !sel.length;
-  $("cnt-pagar").textContent = sel.length ? `Confirmar pagamento · ${eur(tot)}` : "Confirmar pagamento";
-  const a = inicioDia();
-  const pags = D.pagamentos.filter(p=>p.ts>a).slice().reverse();
-  $("cnt-pagos").innerHTML = tabela([{t:"Hora"},{t:"Cliente"},{t:"Valor",num:1},{t:""}],
-    pags.map(p=>`<tr><td>${hora(p.ts)}</td><td>${esc(p.cliente)}</td><td class="num">${eur(p.valor)}</td>
-      <td class="num"><button class="bt sec anular" data-id="${p.id}" style="min-height:38px;padding:6px 12px;font-size:14px">Anular</button></td></tr>`),
-    "Ainda sem pagamentos hoje.");
-  $("cnt-pagos").querySelectorAll("button.anular").forEach(b=>b.onclick=()=>{
-    const p = D.pagamentos.find(x=>x.id===b.dataset.id);
-    confirmar("Anular pagamento", `<p>Anular o pagamento de <b>${esc(p.cliente)}</b> (${eur(p.valor)})? Os artigos voltam a ficar em aberto.</p>`,
-      "Anular", ()=>{ anularPagamento(p.id); toast("Pagamento anulado."); render(); }, "verm");
-  });
-}
-$("cnt-pagar").onclick = ()=>{
-  const contas = porCliente(emAberto()).filter(c=>selecaoContas.has(c.cliente));
-  if(!contas.length) return;
-  const tot = soma(contas,c=>c.valor);
-  confirmar("Confirmar pagamento", `<p>${contas.map(c=>`${esc(c.cliente)}: <b>${eur(c.valor)}</b>`).join("<br>")}</p><p style="font-size:20px">Total: <b>${eur(tot)}</b></p>`,
-    "Confirmar", ()=>{ const f = pagar(contas.map(c=>c.cliente)); selecaoContas.clear();
-      toast(`Pagamento registado: ${eur(soma(f,p=>p.valor))}`); render(); }, "verde");
-};
-
-/* ======================= APURO / FECHO ======================= */
-let apuroSel = "atual";
-function renderApuro(){
-  const fechos = D.fechos.slice().reverse();
-  if(apuroSel!=="atual" && !D.fechos.some(f=>f.id===apuroSel)) apuroSel = "atual";
-  $("apu-seletor").innerHTML = `<button data-f="atual" class="${apuroSel==="atual"?"ativo":""}">Dia em curso</button>` +
-    fechos.slice(0,12).map(f=>`<button data-f="${f.id}" class="${apuroSel===f.id?"ativo":""}">${dataCurta(f.ts)} ${hora(f.ts)}</button>`).join("");
-  $("apu-seletor").querySelectorAll("button").forEach(b=>b.onclick=()=>{ apuroSel=b.dataset.f; renderApuro(); });
-  let v;
-  if(apuroSel==="atual"){
-    const ap = apuroAtual();
-    v = {vendido:ap.vendido,recebido:ap.recebido,faltaDia:ap.faltaDia,transitado:ap.transitado,recebidos:ap.recebidos,emFalta:ap.emFalta};
-    $("apu-desc").textContent = ultimoFecho() ? `Desde o fecho de ${dataCurta(ultimoFecho().ts)} às ${hora(ultimoFecho().ts)}.` : "Desde o início (ainda sem fechos).";
-    $("apu-fechar-zona").style.display = "block";
-  }else{
-    const f = D.fechos.find(x=>x.id===apuroSel);
-    v = {vendido:f.vendido,recebido:f.recebido,faltaDia:f.faltaDia,transitado:f.transitadoAnt,recebidos:f.recebidos,emFalta:f.emFalta};
-    $("apu-desc").textContent = `Dia fechado em ${dataCurta(f.ts)} às ${hora(f.ts)} · ${f.nPedidos} pedidos · valores no momento do fecho.`;
-    $("apu-fechar-zona").style.display = "none";
-  }
-  $("a-vendido").textContent = eur(v.vendido); $("a-recebido").textContent = eur(v.recebido);
-  $("a-falta").textContent = eur(v.faltaDia); $("a-transitado").textContent = eur(v.transitado);
-  $("a-rec-tot").textContent = eur(v.recebido);
-  $("a-rec").innerHTML = tabela([{t:"Cliente"},{t:"Valor",num:1}], v.recebidos.map(p=>`<tr><td>${esc(p.cliente)}</td><td class="num">${eur(p.valor)}</td></tr>`), "Sem pagamentos.");
-  $("a-falta-tot").textContent = eur(soma(v.emFalta,c=>c.valor));
-  $("a-falta-lista").innerHTML = tabela([{t:"Cliente"},{t:"Itens"},{t:"Valor",num:1}],
-    v.emFalta.map(c=>`<tr><td>${esc(c.cliente)}</td><td class="itens">${esc(c.itensTxt||"")}</td><td class="num"><b>${eur(c.valor)}</b></td></tr>`), "Ninguém ficou a dever.");
-  $("apu-hist").innerHTML = tabela([{t:"Fecho"},{t:"Pedidos",num:1},{t:"Vendido",num:1},{t:"Recebido",num:1},{t:"Transita",num:1}],
-    fechos.map(f=>`<tr><td>${dataCurta(f.ts)} ${hora(f.ts)}</td><td class="num">${f.nPedidos}</td><td class="num">${eur(f.vendido)}</td>
-      <td class="num">${eur(f.recebido)}</td><td class="num verm">${eur(f.transita)}</td></tr>`), "Ainda sem fechos.",
-    fechos.length ? `<tr><td colspan="5" class="num"><button class="bt sec" id="apu-reabrir" style="min-height:38px;padding:6px 12px;font-size:14px">Reabrir o último fecho</button></td></tr>` : "");
-  if($("apu-reabrir")) $("apu-reabrir").onclick = ()=>{
-    if(haMovimentosNoDia()){ aviso("Já há pedidos ou pagamentos depois do último fecho. Só é possível reabrir um fecho sem movimentos posteriores."); return; }
-    confirmar("Reabrir o último fecho", `<p>Reabrir o fecho de ${dataCurta(ultimoFecho().ts)}? O dia volta a ficar em curso.</p>`, "Reabrir",
-      ()=>{ reabrirUltimoFecho(); apuroSel="atual"; toast("Fecho reaberto."); render(); }, "verm");
-  };
-}
-$("apu-fechar").onclick = ()=>{
-  const ap = apuroAtual();
-  if(!haMovimentosNoDia()){ aviso("Não há movimentos desde o último fecho."); return; }
-  confirmar("Fechar o dia", `<p>Vendido: <b>${eur(ap.vendido)}</b><br>Recebido: <b>${eur(ap.recebido)}</b><br>
-    Em falta do dia: <b>${eur(ap.faltaDia)}</b><br>Transita para amanhã: <b class="verm">${eur(ap.faltaDia+ap.transitado)}</b></p>`,
-    "Fechar o dia", ()=>{ fecharDia(); apuroSel="atual"; render();
-      janela("Dia fechado", "<p>Recomendamos guardar uma cópia de segurança agora.</p>",
-        [{texto:"Mais tarde",classe:"sec",id:"modal-cancelar"},{texto:"Guardar cópia",id:"modal-ok",acao:fazerBackup}]); });
-};
-
-/* ======================= DEFINIÇÕES ======================= */
-function renderDef(){
-  const prods = D.produtos.slice().sort((a,b)=>a.nome.localeCompare(b.nome,"pt"));
-  $("def-produtos").innerHTML = tabela([{t:"Produto"},{t:"Preço",num:1},{t:"Ativo"},{t:""}],
-    prods.map(p=>`<tr><td>${esc(p.nome)}</td>
-      <td class="num"><input type="text" inputmode="decimal" value="${p.preco.toFixed(2).replace(".",",")}" data-preco="${p.id}" style="max-width:110px;text-align:right"></td>
-      <td><input type="checkbox" class="chk" data-ativo="${p.id}" ${p.ativo?"checked":""}></td>
-      <td class="num"><button class="lixo" data-apagar-prod="${p.id}" title="Apagar">🗑</button></td></tr>`), "Sem produtos.");
-  $("def-produtos").querySelectorAll("input[data-preco]").forEach(i=>i.onchange=()=>{
-    const v = parseFloat(String(i.value).replace(",",".")); const p = D.produtos.find(x=>x.id===i.dataset.preco);
-    if(!(v>=0)){ aviso("Preço inválido."); i.value=p.preco.toFixed(2).replace(".",","); return; }
-    gravar([{tipo:"update",col:"produtos",id:p.id,dados:{preco:r2(v)}}]); toast(`${p.nome}: novo preço ${eur(r2(v))}`);
-  });
-  $("def-produtos").querySelectorAll("input[data-ativo]").forEach(i=>i.onchange=()=>{
-    gravar([{tipo:"update",col:"produtos",id:i.dataset.ativo,dados:{ativo:i.checked}}]);
-  });
-  $("def-produtos").querySelectorAll("button[data-apagar-prod]").forEach(b=>b.onclick=()=>{
-    const p = D.produtos.find(x=>x.id===b.dataset.apagarProd);
-    const usado = D.pedidos.some(o=>o.produto===p.nome);
-    confirmar("Apagar produto", usado ? `<p><b>${esc(p.nome)}</b> já tem vendas registadas; o histórico mantém-se. Apagar da lista de produtos?</p>`
-      : `<p>Apagar <b>${esc(p.nome)}</b>?</p>`, "Apagar", ()=>{ gravar([{tipo:"del",col:"produtos",id:p.id}]); }, "verm");
-  });
-  const nomes = D.clientes.map(c=>c.nome).sort((a,b)=>a.localeCompare(b,"pt"));
-  $("def-clientes").innerHTML = tabela([{t:"Cliente"},{t:"Em aberto",num:1},{t:""}],
-    nomes.map(n=>{ const deve = soma(emAberto().filter(p=>p.cliente===n),total);
-      return `<tr><td>${esc(n)}</td><td class="num ${deve>0?"verm":""}">${deve>0?eur(deve):"—"}</td>
-      <td class="num"><button class="lixo" data-apagar-cli="${esc(n)}" title="Apagar">🗑</button></td></tr>`; }), "Ainda sem clientes.");
-  $("def-clientes").querySelectorAll("button[data-apagar-cli]").forEach(b=>b.onclick=()=>{
-    const n = b.dataset.apagarCli;
-    if(emAberto().some(p=>p.cliente===n)){ aviso(`${n} tem contas em aberto. Liquide ou apague os artigos antes de apagar o cliente.`); return; }
-    confirmar("Apagar cliente", `<p>Apagar <b>${esc(n)}</b> da lista de clientes? O histórico de pedidos mantém-se.</p>`, "Apagar",
-      ()=>{ gravar(D.clientes.filter(c=>c.nome===n).map(c=>({tipo:"del",col:"clientes",id:c.id}))); }, "verm");
-  });
-  let ub = 0; try{ ub = Number(localStorage.getItem("bloco_pedidos_ult_backup"))||0; }catch(e){}
-  $("def-ult-backup").textContent = ub ? `Última cópia neste aparelho: ${dataCurta(ub)} às ${hora(ub)}` : "Ainda não foi feita nenhuma cópia neste aparelho.";
-  $("def-modo").innerHTML = MODO_FIREBASE ? `Dados <b>partilhados</b> (Firebase) · sessão: <b>${esc(Store.utilizador()||"—")}</b>`
-                                          : `Dados <b>só neste aparelho</b> (modo local — Firebase ainda não configurado)`;
-  $("def-sair").style.display = MODO_FIREBASE ? "inline-block" : "none";
-}
-$("def-prod-add").onclick = ()=>{
-  const nome = $("def-prod-nome").value.trim().replace(/\s+/g," "), preco = parseFloat(String($("def-prod-preco").value).replace(",","."));
-  if(!nome || !(preco>=0)){ aviso("Indique o nome e o preço do produto."); return; }
-  if(D.produtos.some(p=>norm(p.nome)===norm(nome))){ aviso("Já existe um produto com esse nome."); return; }
-  gravar([{tipo:"set",col:"produtos",id:novoId("p"),dados:{nome,preco:r2(preco),ativo:true}}]);
-  $("def-prod-nome").value=""; $("def-prod-preco").value=""; toast(`Produto adicionado: ${nome}`); render();
-};
-$("def-cli-add").onclick = ()=>{
-  const nome = $("def-cli-nome").value.trim();
-  if(!nome){ aviso("Indique o nome do cliente."); return; }
-  if(D.clientes.some(c=>norm(c.nome)===norm(nome))){ aviso("Esse cliente já existe."); return; }
-  gravar(opsCliente(nome).ops); $("def-cli-nome").value=""; toast(`Cliente adicionado: ${nome}`); render();
-};
-function descarregar(nome, conteudo, tipo){
-  const b = new Blob([conteudo],{type:tipo}); const a = document.createElement("a");
-  a.href = URL.createObjectURL(b); a.download = nome; document.body.appendChild(a); a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-}
-const dataFicheiro = ()=>{ const d = new Date(); const z=(n)=>String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}`; };
-function fazerBackup(){
-  try{ localStorage.setItem("bloco_pedidos_ult_backup", String(Date.now())); }catch(e){}
-  const copia = {versao:2, criada:Date.now()}; for(const c of COLS) copia[c] = D[c];
-  descarregar(`bloco-pedidos_copia_${dataFicheiro()}.json`, JSON.stringify(copia), "application/json");
-  toast("Cópia de segurança guardada nas Transferências."); render();
-}
-$("def-backup").onclick = fazerBackup;
-$("def-restaurar").onclick = ()=>$("def-ficheiro").click();
-$("def-ficheiro").onchange = (e)=>{
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    let d; try{ d = JSON.parse(r.result); }catch(err){ aviso("O ficheiro não é uma cópia válida."); return; }
-    if(!d || !Array.isArray(d.pedidos) || !Array.isArray(d.produtos) || !Array.isArray(d.pagamentos) || !Array.isArray(d.fechos)){ aviso("O ficheiro não é uma cópia válida do Bloco de Pedidos."); return; }
-    confirmar("Restaurar cópia", `<p>Substituir os dados atuais pela cópia (${d.pedidos.length} pedidos, ${d.pagamentos.length} pagamentos, ${d.fechos.length} fechos)?</p>`,
-      "Restaurar", ()=>{
-        const ops = opsApagarTudo();
-        for(const c of COLS) for(const x of (d[c]||[])) ops.push({tipo:"set",col:c,id:x.id,dados:semId(x)});
-        gravar(ops); apuroSel="atual"; toast("Cópia restaurada."); }, "verm");
-  };
-  r.readAsText(f); e.target.value = "";
-};
-$("def-csv").onclick = ()=>{
-  const n2 = (v)=> String(r2(v)).replace(".",",");
-  const dt = (ts)=> new Date(ts).toLocaleString("pt-PT");
-  const q = (s)=> '"'+String(s).replace(/"/g,'""')+'"';
-  const fechoDe = (ts)=>{ const f = D.fechos.find(x=>ts>x.ini && ts<=x.ts); return f ? dataCurta(f.ts)+" "+hora(f.ts) : "dia em curso"; };
-  let csv = "﻿Data/hora;Cliente;Produto;Qtd;Preço;Total;Estado;Dia (fecho)\r\n";
-  for(const p of D.pedidos) csv += [q(dt(p.ts)),q(p.cliente),q(p.produto),p.qtd,n2(p.preco),n2(total(p)),p.pagId?"Pago":"Aberto",q(fechoDe(p.ts))].join(";")+"\r\n";
-  csv += "\r\nPagamentos\r\nData/hora;Cliente;Valor;Dia (fecho)\r\n";
-  for(const p of D.pagamentos) csv += [q(dt(p.ts)),q(p.cliente),n2(p.valor),q(fechoDe(p.ts))].join(";")+"\r\n";
-  csv += "\r\nFechos\r\nData/hora;Pedidos;Vendido;Recebido;Em falta do dia;Transita\r\n";
-  for(const f of D.fechos) csv += [q(dt(f.ts)),f.nPedidos,n2(f.vendido),n2(f.recebido),n2(f.faltaDia),n2(f.transita)].join(";")+"\r\n";
-  descarregar(`bloco-pedidos_${dataFicheiro()}.csv`, csv, "text/csv;charset=utf-8");
-  toast("Ficheiro CSV guardado nas Transferências.");
-};
-$("def-apagar-tudo").onclick = ()=>{
-  confirmar("Apagar todos os dados", "<p>Isto apaga <b>todos</b> os pedidos, pagamentos, fechos e clientes deste tablet. Faça antes uma cópia de segurança.</p>",
-    "Continuar", ()=>confirmar("Tem a certeza?", "<p>Esta ação não pode ser desfeita.</p>", "Apagar tudo",
-      ()=>{ gravar(opsApagarTudo().concat(opsProdutosIniciais())); apuroSel="atual"; carrinho=[]; selecaoContas.clear(); toast("Dados apagados."); }, "verm"), "verm");
-};
-
-/* ======================= GERAL ======================= */
-function render(){
-  $("hdr-data").textContent = new Date().toLocaleDateString("pt-PT",{weekday:"long",day:"2-digit",month:"long"});
-  const f = ultimoFecho();
-  $("hdr-dia").textContent = (f && !haMovimentosNoDia()) ? "Dia fechado" : "Dia em curso";
-  if(ecraAtual==="inicio") renderInicio();
-  if(ecraAtual==="pedido") renderPedido();
-  if(ecraAtual==="contas") renderContas();
-  if(ecraAtual==="apuro") renderApuro();
-  if(ecraAtual==="def") renderDef();
-}
-function mostrarLogin(sim){ $("ecra-login").style.display = sim ? "flex" : "none"; }
-$("login-entrar").onclick = ()=>{
-  const email = $("login-email").value.trim(), pass = $("login-pass").value;
-  $("login-erro").textContent = "";
-  if(!email || !pass){ $("login-erro").textContent = "Indique o email e a palavra-passe."; return; }
-  $("login-entrar").disabled = true;
-  Nuvem.entrar(email, pass).catch((e)=>{ $("login-erro").textContent = (e.code==="auth/network-request-failed")
-      ? "Sem ligação à internet. O primeiro login precisa de internet." : "Email ou palavra-passe errados."; })
-    .finally(()=>{ $("login-entrar").disabled = false; });
-};
-$("login-pass").addEventListener("keydown",(e)=>{ if(e.key==="Enter") $("login-entrar").click(); });
-$("def-sair").onclick = ()=> confirmar("Terminar sessão", "<p>Terminar a sessão neste aparelho?</p>", "Terminar", ()=>Nuvem.sair());
-const SDK = ["firebase-app-compat.js","firebase-auth-compat.js","firebase-firestore-compat.js"]
-  .map(f=>"https://www.gstatic.com/firebasejs/10.14.1/"+f);
-function carregarScript(src){ return new Promise((ok,erro)=>{ const s = document.createElement("script"); s.src = src; s.onload = ok;
-  s.onerror = ()=>erro(new Error(src)); document.head.appendChild(s); }); }
-if(MODO_FIREBASE){
-  SDK.reduce((p,src)=>p.then(()=>carregarScript(src)), Promise.resolve())
-    .then(()=>Nuvem.iniciar())
-    .catch(()=>aviso("Não foi possível carregar o Firebase. Na primeira utilização o aparelho precisa de internet."));
-}else{
-  Store.iniciar();
-}
-if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
-if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
-// para testes automáticos
-window.__app = {get dados(){ return D; }, apuroAtual, porCliente, emAberto};
-</script>
+<script src="calculos.js"></script>
+<script src="nucleo.js"></script>
+<script src="ingredientes.js"></script>
+<script src="receitas.js"></script>
+<script src="definicoes.js"></script>
+<script>arrancar();</script>
 </body>
 </html>
