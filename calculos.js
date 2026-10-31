@@ -115,5 +115,31 @@ function proximoId(prefixo, contador, idsExistentes, digitos){
   return {id: prefixo + String(n).padStart(digitos || 3, "0"), numero: n};
 }
 
+/* ---------- MÃO DE OBRA ----------
+   Funcionário: {salario (base mensal €), horas (semanais), ss (% Seg. Social da empresa, opcional), seguro (€/ano, opcional)}
+   Valor da hora normal (Código do Trabalho) = salário × 12 ÷ (52 × horas)
+   Custo da hora para a empresa = (salário × 14 × (1 + SS%) + seguro anual) ÷ (52 × horas)   (14 meses: com subsídios de férias e Natal) */
+function valorHoraNormal(f){
+  const h = Number(f && f.horas) || 0; if(!(h > 0)) return 0;
+  return (Number(f.salario) || 0) * 12 / (52 * h);
+}
+function custoHora(f){
+  const h = Number(f && f.horas) || 0; if(!(h > 0)) return 0;
+  return ((Number(f.salario) || 0) * 14 * (1 + (Number(f.ss) || 0) / 100) + (Number(f.seguro) || 0)) / (52 * h);
+}
+/* Mão de obra de uma receita a partir das linhas {func, min}: minutos × custo da hora ÷ 60.
+   Cada linha é arredondada ao cêntimo e o total é a soma das linhas (como os ingredientes).
+   Um funcionário que já não exista mantém o custo gravado na linha. */
+function maoObraDasLinhas(linhas, funcs){
+  const det = (linhas || []).map((l)=>{
+    const f = funcs.get(l.func);
+    const custo = arred2(f ? (Number(l.min) || 0) * custoHora(f) / 60 : (Number(l.custo) || 0));   // cada linha arredondada, como os ingredientes
+    return {...l, custo, existe: !!f, nome: f ? f.nome : (l.nome || l.func)};
+  });
+  return {total: arred2(det.reduce((a, l)=>a + l.custo, 0)), linhas: det};
+}
+const minutosTxt = (m)=>{ m = Math.round(Number(m) || 0); const h = Math.floor(m / 60), r = m % 60;
+  return h ? `${h} h${r ? " " + r + " min" : ""}` : `${r} min`; };
+
 if(typeof module !== "undefined") module.exports = {arred2, lerNumero, proper, limparEspacos, normalizarUnidade,
-  converterUnidadeBase, nomeComMarca, custoItem, pvpReceita, calcularReceita, indicadores, proximoId};
+  converterUnidadeBase, nomeComMarca, custoItem, pvpReceita, calcularReceita, indicadores, proximoId, valorHoraNormal, custoHora, maoObraDasLinhas, minutosTxt};

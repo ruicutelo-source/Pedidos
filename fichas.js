@@ -36,6 +36,7 @@ function htmlFicha(r, tipo, doses, foto){
   const base = Number(r.doses) || 1, fator = doses / base;
   const titulo = {1: "FICHA TÉCNICA · COZINHA", 2: "FICHA TÉCNICA · CUSTOS", 3: "FICHA TÉCNICA · COMPLETA"}[tipo];
   let faltam = false, totalIngr = 0;
+  const linhasMo = r.moLinhas || [], tempoTotal = linhasMo.reduce((a, l)=>a + (Number(l.min) || 0), 0);
   const linhas = r.itens.map((it)=>{
     const ing = Idx.ing.get(it.ing), qtd = it.qtd * fator;
     let custo, nome = it.nome, marca = it.marca, uni = it.unidade;
@@ -57,7 +58,7 @@ function htmlFicha(r, tipo, doses, foto){
       ${L("Custo dos ingredientes", custoDose)}
       ${L(`Gastos operacionais (${p1(r.gOp)})`, custoDose * (r.gOp || 0))}
       ${L(`Gastos não operacionais (${p1(r.gNaoOp)})`, custoDose * (r.gNaoOp || 0))}
-      ${L(`Mão de obra (${eur(mo)} ÷ ${numTxt(base)} doses)`, moDose)}
+      ${L(`Mão de obra (${eur(mo)} ÷ ${numTxt(base)} doses)${linhasMo.length ? "<br><span class=\"f-nota\">" + linhasMo.map((l)=>`${esc(l.nome)}: ${numTxt(l.min)} min × ${eur(Number(l.min) > 0 ? l.custo / l.min * 60 : 0)}/h = ${eur(l.custo)}`).join("; ") + "</span>" : ""}`, moDose)}
       ${L("Custo total com gastos e mão de obra", custoGastos, true)}
       ${L(`Lucro (${p1(r.margem)} sobre o custo total)`, custoGastos * (r.margem || 0))}
       ${L("Preço sem IVA", semIva, true)}
@@ -70,7 +71,7 @@ function htmlFicha(r, tipo, doses, foto){
   return `<div class="ficha">
     <div class="f-tit">${titulo}</div>
     <div class="f-nome">${esc(r.nome)}</div>
-    <div class="f-info">ID: ${esc(r.id)} &nbsp;|&nbsp; Doses: ${numTxt(doses)}${fator !== 1 ? ` (receita base: ${numTxt(base)})` : ""} &nbsp;|&nbsp; Data: ${dataCurta(Date.now())}</div>
+    <div class="f-info">ID: ${esc(r.id)} &nbsp;|&nbsp; Doses: ${numTxt(doses)}${fator !== 1 ? ` (receita base: ${numTxt(base)})` : ""} &nbsp;|&nbsp; Data: ${dataCurta(Date.now())}${tempoTotal ? ` &nbsp;|&nbsp; Tempo de confeção: ${minutosTxt(tempoTotal)}` : ""}</div>
     ${foto ? `<div class="f-foto"><img src="${foto}" alt=""></div>` : ""}
     <h3>INGREDIENTES</h3>
     <table><thead><tr><th>Ingrediente</th><th>Marca</th><th class="num">Quantidade</th><th class="c">Unidade</th>${tipo >= 2 ? `<th class="num">Custo</th>` : ""}</tr></thead>

@@ -170,6 +170,9 @@
           <div><label class="campo" for="rec-iva">IVA (%)</label><input type="text" id="rec-iva" inputmode="decimal"></div>
           <div><label class="campo" for="rec-mo">Mão de obra (€)</label><input type="text" id="rec-mo" inputmode="decimal"></div>
         </div>
+        <h3>Mão de obra (tempo de confeção)</h3>
+        <div id="rec-mo-linhas"></div>
+        <div class="nota" id="rec-mo-nota"></div>
         <div class="pvp" style="margin-top:12px">
           <div><div class="pequeno" style="color:#C9D6E3">PVP SUGERIDO (por dose)</div><div class="val" id="rec-pvp"></div></div>
           <div class="det" id="rec-pvp-det"></div>
@@ -218,6 +221,11 @@
     <input type="file" id="def-importar-ficheiro" accept=".json,application/json" style="display:none">
     <div class="nota" id="def-importar-estado"></div>
   </div>
+  <h2>Funcionários</h2>
+  <div class="nota">Custo da hora = (salário × 14 × (1 + Seg. Social %) + seguro anual) ÷ (52 × horas semanais). Usado na mão de obra das receitas.</div>
+  <div class="barra"><button class="bt" id="func-novo">+ Novo funcionário</button></div>
+  <div class="bloco rolar"><div id="func-lista"></div></div>
+
   <h2>Clientes</h2>
   <div class="barra">
     <input type="search" id="cli-filtro" placeholder="Procurar cliente…" autocomplete="off">
@@ -284,6 +292,7 @@
 <script src="cafe.js"></script>
 <script src="definicoes.js"></script>
 <script src="painel.js"></script>
+<script src="funcionarios.js"></script>
 <script src="fichas.js"></script>
 <script>arrancar();</script>
 </body>

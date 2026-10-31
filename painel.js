@@ -113,7 +113,7 @@ function editarCliente(id){
       }
       fecharJanela(); gravar(ops); toast(c ? `Nome mudado para ${nome}.` : `Cliente adicionado: ${nome}`);
     }}]);
-  setTimeout(()=>{ const e = $("cli-nome"); if(e) e.focus(); }, 50);
+  { const e = $("cli-nome"); if(e) e.focus(); }
 }
 
 /* ======================= EXPORTAR PARA EXCEL (CSV) ======================= */

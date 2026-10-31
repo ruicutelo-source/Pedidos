@@ -116,7 +116,7 @@ function editarIngrediente(id, daReceita){
      ...(ing ? [{texto: "Apagar", classe: "verm", id: "ie-apagar", acao: ()=>{ ingAberto = null; apagarIngrediente(ing.id); }}] : []),
      {texto: "Gravar", classe: "verde", id: "modal-ok", manter: true, acao: ()=>gravarIngrediente(ing)}], true);
   renderZonaStock();
-  setTimeout(()=>{ const c = $("ie-nome"); if(c && !ing) c.focus(); }, 50);
+  { const c = $("ie-nome"); if(c && !ing) c.focus(); }
 }
 
 /* Zona Stock dentro da janela (só para ingredientes já gravados) */

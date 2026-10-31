@@ -5,15 +5,22 @@
    Regras iguais ao formulário de Receitas do Excel.
    ===================================================================== */
 
-/* Estado da receita gravada vs. os preços atuais dos ingredientes */
+/* Mão de obra atual: pelas linhas de tempo (minutos × custo da hora do funcionário) ou o valor escrito à mão */
+function maoObraAtual(r){
+  if(r.moLinhas && r.moLinhas.length) return maoObraDasLinhas(r.moLinhas, Idx.func).total;
+  return Number(r.maoObra) || 0;
+}
+/* Estado da receita gravada vs. os preços atuais dos ingredientes e os ordenados atuais */
 function estadoReceita(r){
-  const c = calcularReceita(r, Idx.ing);
+  const mo = maoObraAtual(r);
+  const c = calcularReceita({...r, maoObra: mo}, Idx.ing);
   const itensMudaram = c.itens.some((it, i)=>arred2(it.custo) !== arred2((r.itens[i] || {}).custo));
-  const desatualizada = itensMudaram || c.total !== arred2(r.custoTotal) || c.custoDose !== arred2(r.custoDose) || c.pvp !== arred2(r.pvp);
+  const desatualizada = itensMudaram || mo !== arred2(r.maoObra || 0) || c.total !== arred2(r.custoTotal) || c.custoDose !== arred2(r.custoDose) || c.pvp !== arred2(r.pvp);
   const faltam = c.itens.filter((it)=>!it.existe);
   const ind = indicadores(arred2(r.custoDose), arred2(r.pvp), r, (Number(r.doses) > 0 ? (Number(r.maoObra) || 0) / r.doses : 0));
-  return {calc: c, desatualizada, faltam, ind};
+  return {calc: c, desatualizada, faltam, ind, maoObra: mo};
 }
+const linhasMoGravar = (linhas)=> maoObraDasLinhas(linhas, Idx.func).linhas.map((l)=>({func: l.func, min: l.min, custo: arred2(l.custo), nome: l.nome}));
 
 /* ======================= LISTA ======================= */
 let recVista = "lista";
@@ -25,7 +32,7 @@ RENDER.receitas = function(){
   const lista = D.receitas.filter((r)=>!n || norm(r.nome + " " + r.id).includes(n)).sort(porNome);
   const est = new Map(D.receitas.map((r)=>[r.id, estadoReceita(r)]));
   const nDesat = [...est.values()].filter((e)=>e.desatualizada).length;
-  $("rec-aviso-desat").innerHTML = nDesat ? `<div class="aviso">${nDesat} ${nDesat === 1 ? "receita tem" : "receitas têm"} custos diferentes dos preços atuais dos ingredientes (marcadas com ⚠). Use <b>Atualizar custos</b> para gravar os novos custos e PVP.</div>` : "";
+  $("rec-aviso-desat").innerHTML = nDesat ? `<div class="aviso">${nDesat} ${nDesat === 1 ? "receita tem" : "receitas têm"} custos diferentes dos preços atuais dos ingredientes ou dos ordenados (marcadas com ⚠). Use <b>Atualizar custos</b> para gravar os novos custos e PVP.</div>` : "";
   $("rec-lista").innerHTML = tabela(
     [{t: "ID", cl: "so-largo"}, {t: "Receita"}, {t: "Doses", num: 1, cl: "so-largo"}, {t: "Custo / dose", num: 1}, {t: "PVP", num: 1}, {t: "Lucro % s/ custo", num: 1}],
     lista.map((r)=>{ const e = est.get(r.id);
@@ -52,7 +59,8 @@ $("rec-atualizar").onclick = ()=>{
     if(!e.desatualizada) continue;
     ops.push({tipo: "update", col: "receitas", id: r.id, dados: {
       itens: e.calc.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade})),
-      custoTotal: e.calc.total, custoDose: e.calc.custoDose, pvp: e.calc.pvp, atualizado: Date.now()}});
+      custoTotal: e.calc.total, custoDose: e.calc.custoDose, pvp: e.calc.pvp, maoObra: e.maoObra,
+      ...(r.moLinhas && r.moLinhas.length ? {moLinhas: linhasMoGravar(r.moLinhas)} : {}), atualizado: Date.now()}});
     linhas.push(`<tr><td>${esc(r.id)} ${esc(r.nome)}</td><td class="num">${eur(r.pvp)}</td><td class="num"><b>${eur(e.calc.pvp)}</b></td></tr>`);
   }
   let html = `<p>Receitas verificadas: <b>${D.receitas.length}</b><br>Receitas atualizadas: <b>${ops.length}</b><br>Ingredientes com custo atualizado: <b>${nItens}</b></p>`;
@@ -68,7 +76,8 @@ let ed = null;   // {id, original, itens, fotoEstado:"igual"|"nova"|"remover", f
 
 function abrirReceita(id){
   const r = id ? Idx.rec.get(id) : null;
-  ed = {id: r ? r.id : null, original: r, itens: r ? r.itens.map((it)=>({...it})) : [], fotoEstado: "igual", fotoImg: null,
+  ed = {id: r ? r.id : null, original: r, itens: r ? r.itens.map((it)=>({...it})) : [], mo: r && r.moLinhas ? r.moLinhas.map((l)=>({...l})) : [],
+        fotoEstado: "igual", fotoImg: null,
         fotoOriginal: null, ingSel: null, editarItem: -1, sujo: false};
   recVista = "editor";
   const prox = r ? null : proximoId("REC-", contadores().REC, D.receitas.map((x)=>x.id), 3);
@@ -94,7 +103,8 @@ function abrirReceita(id){
     const e = estadoReceita(r);
     const nAlt = e.calc.itens.filter((it, i)=>it.existe && arred2(it.custo) !== arred2((r.itens[i] || {}).custo)).length;
     let msg = "";
-    if(nAlt) msg = `${nAlt} ingrediente(s) com preço diferente do gravado.\n\nCusto total:  ${eur(r.custoTotal)}  →  ${eur(e.calc.total)}\nPVP:  ${eur(r.pvp)}  →  ${eur(e.calc.pvp)}\n\nToque em "Gravar receita" para guardar os novos valores.`;
+    if(e.maoObra !== arred2(r.maoObra || 0)) msg = `A mão de obra mudou (ordenados alterados): ${eur(r.maoObra)}  →  ${eur(e.maoObra)}.\n\n`;
+    if(nAlt || msg) msg += `${nAlt ? nAlt + " ingrediente(s) com preço diferente do gravado.\n\n" : ""}Custo total:  ${eur(r.custoTotal)}  →  ${eur(e.calc.total)}\nPVP:  ${eur(r.pvp)}  →  ${eur(e.calc.pvp)}\n\nToque em "Gravar receita" para guardar os novos valores.`;
     if(e.faltam.length) msg += (msg ? "\n\n" : "") + "Ingredientes que já não existem (custo gravado mantido):\n" + e.faltam.map((f)=>`   ${f.ing} (${f.nome})`).join("\n");
     if(msg) setTimeout(()=>aviso(msg, "Preços atualizados"), 100);
   }
@@ -104,7 +114,7 @@ function abrirReceita(id){
 function receitaDoEcra(){
   const pctF = (id)=>{ const v = lerNumero($(id).value); return v == null ? null : v / 100; };
   return {doses: lerNumero($("rec-doses").value), gOp: pctF("rec-gop"), gNaoOp: pctF("rec-gnop"), margem: pctF("rec-margem"),
-          iva: pctF("rec-iva"), maoObra: lerNumero($("rec-mo").value) || 0, itens: ed.itens};
+          iva: pctF("rec-iva"), maoObra: ed.mo.length ? maoObraDasLinhas(ed.mo, Idx.func).total : (lerNumero($("rec-mo").value) || 0), itens: ed.itens};
 }
 
 function renderEditor(){
@@ -123,11 +133,47 @@ function renderEditor(){
     const i = +b.dataset.editar, it = ed.itens[i]; ed.editarItem = i;
     escolherIngrediente(it.ing); $("rec-ing-qtd").value = numTxt(it.qtd); $("rec-ing-add").textContent = "Atualizar"; $("rec-ing-qtd").focus(); renderEditor();
   });
+  renderMaoObra();
   $("rec-custo-total").textContent = eur(c.total);
   $("rec-custo-dose").textContent = r.doses > 0 ? eur(c.custoDose) : "—";
   $("rec-pvp").textContent = eur(c.pvp);
   $("rec-pvp-det").innerHTML = `Custo c/ gastos e M.O.: ${eur(c.custoComGastos)}<br>Mão de obra / dose: ${eur(c.maoObraDose)}<br>` +
     `Lucro / dose: ${eur(c.lucro)}  ·  Preço s/ IVA: ${eur(c.precoSemIva)}`;
+}
+/* ---------- mão de obra pelo tempo de confeção (até 5 linhas: funcionário + minutos) ---------- */
+const MAX_LINHAS_MO = 5;
+function construirLinhasMo(){
+  const box = $("rec-mo-linhas"); if(!box || !ed) return;
+  const funcs = D.funcionarios.slice().sort(porNome);
+  box.dataset.n = ed.mo.length; box.dataset.nf = D.funcionarios.length; box._mo = ed.mo;
+  box.innerHTML = ed.mo.map((l, i)=>`<div class="linha-mo" data-i="${i}">
+      <select data-mo-func="${i}"><option value="">— funcionário —</option>${funcs.map((f)=>`<option value="${esc(f.id)}" ${f.id === l.func ? "selected" : ""}>${esc(f.nome)}</option>`).join("")}
+        ${l.func && !Idx.func.has(l.func) ? `<option value="${esc(l.func)}" selected>${esc(l.nome || l.func)} (já não existe)</option>` : ""}</select>
+      <div class="qtd-uni"><input type="text" inputmode="numeric" data-mo-min="${i}" value="${l.min ? numTxt(l.min) : ""}" placeholder="0"><span>min</span></div>
+      <span class="pequeno" data-mo-h="${i}"></span>
+      <b class="num" data-mo-val="${i}"></b>
+      <button class="lixo" data-mo-tirar="${i}" title="Retirar">🗑</button></div>`).join("") +
+    (ed.mo.length < MAX_LINHAS_MO && funcs.length ? `<button class="bt sec peq" id="rec-mo-add">+ Funcionário e tempo</button>` : "") +
+    (!funcs.length ? `<div class="nota">Para calcular pelo tempo de confeção, crie primeiro os funcionários em Definições.</div>` : "");
+  box.querySelectorAll("[data-mo-func]").forEach((el)=>el.onchange = ()=>{ ed.mo[+el.dataset.moFunc].func = el.value; ed.sujo = true; renderEditor(); });
+  box.querySelectorAll("[data-mo-min]").forEach((el)=>el.oninput = ()=>{ ed.mo[+el.dataset.moMin].min = lerNumero(el.value) || 0; ed.sujo = true; renderEditor(); });
+  box.querySelectorAll("[data-mo-tirar]").forEach((el)=>el.onclick = ()=>{ ed.mo.splice(+el.dataset.moTirar, 1); ed.sujo = true; construirLinhasMo(); renderEditor(); });
+  if($("rec-mo-add")) $("rec-mo-add").onclick = ()=>{ ed.mo.push({func: funcs.length === 1 ? funcs[0].id : "", min: 0}); ed.sujo = true; construirLinhasMo(); renderEditor();
+    const m = box.querySelectorAll("[data-mo-min]"); if(m.length) m[m.length - 1].focus(); };
+}
+function renderMaoObra(){
+  const box = $("rec-mo-linhas"); if(!box || !ed) return;
+  if(box._mo !== ed.mo || box.dataset.n !== String(ed.mo.length) || box.dataset.nf !== String(D.funcionarios.length)) construirLinhasMo();
+  const calc = maoObraDasLinhas(ed.mo, Idx.func);
+  calc.linhas.forEach((l, i)=>{
+    const h = box.querySelector(`[data-mo-h="${i}"]`), v = box.querySelector(`[data-mo-val="${i}"]`);
+    if(h) h.textContent = l.min > 0 ? "= " + minutosTxt(l.min) : "";
+    if(v) v.textContent = eur(l.custo);
+  });
+  const mo = $("rec-mo");
+  if(ed.mo.length){ mo.readOnly = true; mo.value = numTxt(calc.total, 2); $("rec-mo-nota").textContent = `Mão de obra calculada pelo tempo: ${eur(calc.total)} para a receita inteira (a app divide pelas doses).`; }
+  else { if(mo.readOnly){ mo.readOnly = false; mo.value = ed.original && !(ed.original.moLinhas || []).length && ed.original.maoObra > 0 ? numTxt(ed.original.maoObra, 2) : ""; }
+         $("rec-mo-nota").textContent = "Sem linhas de tempo: pode escrever a mão de obra (€) à mão, ou deixar vazio."; }
 }
 ["rec-doses", "rec-gop", "rec-gnop", "rec-margem", "rec-iva", "rec-mo"].forEach((id)=>$(id).addEventListener("input", ()=>{ ed && (ed.sujo = true); renderEditor(); }));
 ["rec-nome", "rec-modo"].forEach((id)=>$(id).addEventListener("input", ()=>{ ed && (ed.sujo = true); }));
@@ -211,7 +257,11 @@ $("rec-gravar").onclick = ()=>{
     if(t === ""){ aviso(`Preencha o campo '${nome}' (pode ser 0).`); $(id).focus(); return; }
     const v = lerNumero(t); if(v == null || v < 0){ aviso(`Valor inválido no campo '${nome}'.`); $(id).focus(); return; }
   }
-  if($("rec-mo").value.trim() !== ""){ const v = lerNumero($("rec-mo").value); if(v == null || v < 0){ aviso("Valor inválido na mão de obra."); $("rec-mo").focus(); return; } }
+  if(!ed.mo.length && $("rec-mo").value.trim() !== ""){ const v = lerNumero($("rec-mo").value); if(v == null || v < 0){ aviso("Valor inválido na mão de obra."); $("rec-mo").focus(); return; } }
+  for(const [i, l] of ed.mo.entries()){
+    if(!l.func || !Idx.func.has(l.func) && !l.custo){ aviso(`Mão de obra, linha ${i + 1}: escolha o funcionário.`); return; }
+    if(!(Number(l.min) > 0)){ aviso(`Mão de obra, linha ${i + 1}: indique os minutos (maior que 0).`); return; }
+  }
 
   const continuar = (novo)=>gravarReceita(nomeEcra, r, novo);
   const o = ed.original;
@@ -243,6 +293,7 @@ function gravarReceita(nome, r, novo){
   else if(novo && temFoto){ if(ed.fotoOriginal) ops.push({tipo: "set", col: "fotos", id, dados: {img: ed.fotoOriginal}}); else temFoto = false; }
   ops.push({tipo: "set", col: "receitas", id, dados: {
     nome, doses: r.doses, modo: $("rec-modo").value, gOp: r.gOp, gNaoOp: r.gNaoOp, margem: r.margem, iva: r.iva, maoObra: r.maoObra,
+    moLinhas: linhasMoGravar(ed.mo),
     itens: c.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade})),
     custoTotal: c.total, custoDose: c.custoDose, pvp: c.pvp, temFoto, atualizado: Date.now()}});
   gravar(ops);

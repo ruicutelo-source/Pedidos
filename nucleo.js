@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1036647485085",
   appId: "1:1036647485085:web:a3f05d60475ac7177b0e74"
 };
-const VERSAO_APP = "2.3 (fase 4)";
+const VERSAO_APP = "2.4 (mão de obra)";
 
 /* Quem é administrador. Qualquer outro email autorizado entra como caixa. */
 const EMAILS_ADMIN = ["administrador@cafe.pt"];
@@ -35,17 +35,20 @@ const MODO_FIREBASE = !!(FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.apiKey);
                             recebidos[], emFalta[], top[], consumo:{ING-xxx: qtd}, nArquivo}
    arquivo/{idFecho_n}:    {fecho, pedidos[], pagamentos[]}   (pedidos pagos e anulados dos dias fechados;
                             não é carregado ao abrir a app — mantém a app rápida e dentro do plano grátis)
+   funcionarios/{id}:      {nome, salario, horas, ss, seguro}   (só o administrador)
    config/contadores:      {ING, REC}   (último número usado; os IDs nunca se repetem)
    --------------------------------------------------------------------- */
-const COLS = ["ingredientes", "receitas", "movimentos", "clientes", "config", "pedidos", "pagamentos", "fechos"];
+const COLS = ["ingredientes", "receitas", "movimentos", "clientes", "config", "pedidos", "pagamentos", "fechos", "funcionarios"];
+const COLS_SO_ADMIN = ["funcionarios"];          // a caixa não vê os ordenados
 const COLS_SO_PEDIDO = ["arquivo", "produtos"];     // lidas só quando é preciso
 let D = {}; for(const c of COLS.concat(COLS_SO_PEDIDO)) D[c] = [];
-const Idx = {ing: new Map(), rec: new Map()};
+const Idx = {ing: new Map(), rec: new Map(), func: new Map()};
 let versaoDados = 0;        // muda sempre que os dados mudam (para não refazer contas sem necessidade)
 function reindexar(){
   versaoDados++;
   Idx.ing = new Map(D.ingredientes.map((x)=>[x.id, x]));
   Idx.rec = new Map(D.receitas.map((x)=>[x.id, x]));
+  Idx.func = new Map(D.funcionarios.map((x)=>[x.id, x]));
   D.pedidos.sort((a, b)=>a.ts - b.ts); D.pagamentos.sort((a, b)=>a.ts - b.ts); D.fechos.sort((a, b)=>a.ts - b.ts);
   ultimoTs = Math.max(ultimoTs, ...D.pedidos.map((p)=>p.ts), ...D.pagamentos.map((p)=>p.ts), ...D.fechos.map((f)=>f.ts), 0);
 }
@@ -108,6 +111,7 @@ const Nuvem = {
   subscrever(){
     this.parar(); this.recebido = {};
     for(const c of COLS){
+      if(COLS_SO_ADMIN.includes(c) && papel !== "admin") continue;
       this.subs.push(this.db.collection(c).onSnapshot((snap)=>{
         D[c] = snap.docs.map((d)=>({...d.data(), id: d.id})); this.recebido[c] = true;
         reindexar(); agendarRender();
