@@ -176,8 +176,8 @@ $("exp-receitas").onclick = ()=>{
     L.push([csvT(r.id), csvT(r.nome), csvN(r.doses), csvN(r.custoTotal, 2), csvN(r.custoDose, 2), csvN(r.gOp), csvN(r.gNaoOp), csvN(r.margem), csvN(r.iva),
       csvN(r.maoObra, 2), csvN(r.pvp, 2), csvN(arred2(e.ind.precoSemIva), 2), csvN(arred2(e.ind.lucro), 2), csvN(e.ind.lucroPct == null ? "" : Math.round(e.ind.lucroPct * 10000) / 10000)]);
   }
-  L.push([], [csvT("Ingredientes das receitas")], ["ID receita", "Receita", "ID ingrediente", "Ingrediente", "Marca", "Quantidade", "Unidade", "Custo"].map(csvT));
+  L.push([], [csvT("Ingredientes das receitas")], ["ID receita", "Receita", "ID ingrediente", "Ingrediente", "Marca", "Quantidade", "Unidade", "Custo", "Obs."].map(csvT));
   for(const r of D.receitas.slice().sort(porNome)) for(const it of r.itens)
-    L.push([csvT(r.id), csvT(r.nome), csvT(it.ing), csvT(it.nome), csvT(it.marca), csvN(it.qtd), csvT(it.unidade), csvN(it.custo, 2)]);
+    L.push([csvT(r.id), csvT(r.nome), csvT(it.ing), csvT(it.nome), csvT(it.marca), csvN(it.qtd), csvT(it.unidade), csvN(it.custo, 2), csvT(it.obs || "")]);
   gravarCsv("receitas_custos", L);
 };

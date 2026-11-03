@@ -58,7 +58,7 @@ $("rec-atualizar").onclick = ()=>{
     if(!(Number(r.doses) > 0)){ semDoses.push(`${r.id} ${r.nome}`); continue; }
     if(!e.desatualizada) continue;
     ops.push({tipo: "update", col: "receitas", id: r.id, dados: {
-      itens: e.calc.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade})),
+      itens: e.calc.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade, obs: it.obs || ""})),
       custoTotal: e.calc.total, custoDose: e.calc.custoDose, pvp: e.calc.pvp, maoObra: e.maoObra,
       ...(r.moLinhas && r.moLinhas.length ? {moLinhas: linhasMoGravar(r.moLinhas)} : {}), atualizado: Date.now()}});
     linhas.push(`<tr><td>${esc(r.id)} ${esc(r.nome)}</td><td class="num">${eur(r.pvp)}</td><td class="num"><b>${eur(e.calc.pvp)}</b></td></tr>`);
@@ -122,7 +122,7 @@ function renderEditor(){
   const r = receitaDoEcra();
   const c = calcularReceita({...r, doses: r.doses || 0}, Idx.ing);
   $("rec-itens").innerHTML = tabela([{t: "Ingrediente"}, {t: "Qtd", num: 1}, {t: "Custo", num: 1}, {t: ""}],
-    c.itens.map((it, i)=>`<tr class="${i === ed.editarItem ? "sel" : ""}"><td><b>${esc(it.nome)}</b>${it.marca ? `<div class="pequeno">${esc(it.marca)}</div>` : ""}
+    c.itens.map((it, i)=>`<tr class="${i === ed.editarItem ? "sel" : ""}"><td><b>${esc(it.nome)}</b>${it.marca ? `<div class="pequeno">${esc(it.marca)}</div>` : ""}${it.obs ? `<div class="obs-item">Obs.: ${esc(it.obs)}</div>` : ""}
         ${it.existe ? `<div><button class="link" data-preco="${esc(it.ing)}">💶 Atualizar preço</button></div>` : `<div class="pequeno verm">já não existe nos ingredientes (custo gravado)</div>`}</td>
       <td class="num">${numTxt(it.qtd)} ${esc(it.unidade)}</td><td class="num">${eur(it.custo)}</td>
       <td class="num" style="white-space:nowrap"><button class="lixo" data-editar="${i}" title="Alterar quantidade">✏️</button><button class="lixo" data-tirar="${i}" title="Retirar">🗑</button></td></tr>`),
@@ -131,7 +131,7 @@ function renderEditor(){
   $("rec-itens").querySelectorAll("[data-preco]").forEach((b)=>b.onclick = ()=>editarIngrediente(b.dataset.preco, true));
   $("rec-itens").querySelectorAll("[data-editar]").forEach((b)=>b.onclick = ()=>{
     const i = +b.dataset.editar, it = ed.itens[i]; ed.editarItem = i;
-    escolherIngrediente(it.ing); $("rec-ing-qtd").value = numTxt(it.qtd); $("rec-ing-add").textContent = "Atualizar"; $("rec-ing-qtd").focus(); renderEditor();
+    escolherIngrediente(it.ing); $("rec-ing-qtd").value = numTxt(it.qtd); $("rec-ing-obs").value = it.obs || ""; $("rec-ing-add").textContent = "Atualizar"; $("rec-ing-qtd").focus(); renderEditor();
   });
   renderMaoObra();
   $("rec-custo-total").textContent = eur(c.total);
@@ -181,7 +181,7 @@ function renderMaoObra(){
 /* ---------- pesquisa de ingredientes ---------- */
 function limparPesquisaIng(){
   if(ed){ ed.ingSel = null; ed.editarItem = -1; }
-  $("rec-ing-busca").value = ""; $("rec-ing-qtd").value = ""; $("rec-ing-uni").textContent = "";
+  $("rec-ing-busca").value = ""; $("rec-ing-qtd").value = ""; $("rec-ing-obs").value = ""; $("rec-ing-uni").textContent = "";
   $("rec-ing-escolhido").textContent = ""; $("rec-ing-sug").style.display = "none"; $("rec-ing-add").textContent = "Adicionar";
 }
 function escolherIngrediente(idIng){
@@ -205,13 +205,15 @@ $("rec-ing-busca").addEventListener("input", ()=>{
 });
 $("rec-ing-busca").addEventListener("blur", ()=>setTimeout(()=>{ $("rec-ing-sug").style.display = "none"; }, 150));
 $("rec-ing-qtd").addEventListener("keydown", (e)=>{ if(e.key === "Enter") $("rec-ing-add").click(); });
+$("rec-ing-obs").addEventListener("keydown", (e)=>{ if(e.key === "Enter") $("rec-ing-add").click(); });
 $("rec-ing-add").onclick = ()=>{
   if(!ed.ingSel){ aviso("Escolha um ingrediente na lista.\nPode escrever parte do nome ou da marca para o encontrar."); return; }
   const q = lerNumero($("rec-ing-qtd").value);
   if(q == null){ aviso("Insira uma quantidade válida (ex.: 250 ou 0,5)."); return; }
   if(!(q > 0)){ aviso("A quantidade tem de ser maior que 0."); return; }
   const ing = Idx.ing.get(ed.ingSel);
-  const item = {ing: ing.id, qtd: q, custo: custoItem(ing, q), nome: ing.nome, marca: ing.marca || "", unidade: ing.unidade};
+  const item = {ing: ing.id, qtd: q, custo: custoItem(ing, q), nome: ing.nome, marca: ing.marca || "", unidade: ing.unidade,
+                obs: limparEspacos($("rec-ing-obs").value).slice(0, 80)};
   if(ed.editarItem >= 0 && ed.editarItem < ed.itens.length) ed.itens[ed.editarItem] = item; else ed.itens.push(item);
   ed.sujo = true; limparPesquisaIng(); renderEditor(); $("rec-ing-busca").focus();
 };
@@ -294,7 +296,7 @@ function gravarReceita(nome, r, novo){
   ops.push({tipo: "set", col: "receitas", id, dados: {
     nome, doses: r.doses, modo: $("rec-modo").value, gOp: r.gOp, gNaoOp: r.gNaoOp, margem: r.margem, iva: r.iva, maoObra: r.maoObra,
     moLinhas: linhasMoGravar(ed.mo),
-    itens: c.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade})),
+    itens: c.itens.map((it)=>({ing: it.ing, qtd: it.qtd, custo: it.custo, nome: it.nome, marca: it.marca, unidade: it.unidade, obs: it.obs || ""})),
     custoTotal: c.total, custoDose: c.custoDose, pvp: c.pvp, temFoto, atualizado: Date.now()}});
   gravar(ops);
   ed = null; recVista = "lista";

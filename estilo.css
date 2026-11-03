@@ -145,3 +145,5 @@ tr.anulado td:nth-child(6),tr.anulado td:nth-child(7){text-decoration:none}
 .linha-mo{display:grid;grid-template-columns:minmax(120px,1.4fr) 120px minmax(70px,.8fr) 80px 44px;gap:8px;align-items:center;margin-bottom:8px}
 .linha-mo b{text-align:right}
 @media (max-width:760px){.linha-mo{grid-template-columns:1fr 110px 44px}.linha-mo [data-mo-h]{grid-column:1}.linha-mo b{grid-column:2}}
+.obs-item{font-size:12px;font-style:italic;color:#4B5563;margin-top:2px}
+.ficha td.obs{font-style:italic;font-size:9.5pt;color:#374151}

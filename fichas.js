@@ -36,6 +36,7 @@ function htmlFicha(r, tipo, doses, foto){
   const base = Number(r.doses) || 1, fator = doses / base;
   const titulo = {1: "FICHA TÉCNICA · COZINHA", 2: "FICHA TÉCNICA · CUSTOS", 3: "FICHA TÉCNICA · COMPLETA"}[tipo];
   let faltam = false, totalIngr = 0;
+  const temObs = (r.itens || []).some((it)=>it.obs);   // a coluna Obs. só aparece se alguma linha tiver observação
   const linhasMo = r.moLinhas || [], tempoTotal = linhasMo.reduce((a, l)=>a + (Number(l.min) || 0), 0);
   const linhas = r.itens.map((it)=>{
     const ing = Idx.ing.get(it.ing), qtd = it.qtd * fator;
@@ -43,7 +44,7 @@ function htmlFicha(r, tipo, doses, foto){
     if(ing){ custo = custoItem(ing, qtd); nome = ing.nome; marca = ing.marca || ""; uni = ing.unidade; }
     else { custo = arred2((it.custo || 0) * fator); nome += " *"; faltam = true; }
     totalIngr += custo;
-    return `<tr><td>${esc(nome)}</td><td>${esc(marca)}</td><td class="num">${numTxt(qtd)}</td><td class="c">${esc(uni)}</td>${tipo >= 2 ? `<td class="num">${eur(custo)}</td>` : ""}</tr>`;
+    return `<tr><td>${esc(nome)}</td><td>${esc(marca)}</td><td class="num">${numTxt(qtd)}</td><td class="c">${esc(uni)}</td>${temObs ? `<td class="obs">${esc(it.obs || "")}</td>` : ""}${tipo >= 2 ? `<td class="num">${eur(custo)}</td>` : ""}</tr>`;
   });
   totalIngr = arred2(totalIngr);
   let resumo = "";
@@ -74,9 +75,9 @@ function htmlFicha(r, tipo, doses, foto){
     <div class="f-info">ID: ${esc(r.id)} &nbsp;|&nbsp; Doses: ${numTxt(doses)}${fator !== 1 ? ` (receita base: ${numTxt(base)})` : ""} &nbsp;|&nbsp; Data: ${dataCurta(Date.now())}${tempoTotal ? ` &nbsp;|&nbsp; Tempo de confeção: ${minutosTxt(tempoTotal)}` : ""}</div>
     ${foto ? `<div class="f-foto"><img src="${foto}" alt=""></div>` : ""}
     <h3>INGREDIENTES</h3>
-    <table><thead><tr><th>Ingrediente</th><th>Marca</th><th class="num">Quantidade</th><th class="c">Unidade</th>${tipo >= 2 ? `<th class="num">Custo</th>` : ""}</tr></thead>
-      <tbody>${linhas.join("") || `<tr><td colspan="5"><i>(receita sem ingredientes)</i></td></tr>`}
-      ${tipo >= 2 ? `<tr class="forte"><td colspan="4">Custo dos ingredientes (${numTxt(doses)} doses)</td><td class="num">${eur(totalIngr)}</td></tr>` : ""}</tbody></table>
+    <table><thead><tr><th>Ingrediente</th><th>Marca</th><th class="num">Quantidade</th><th class="c">Unidade</th>${temObs ? `<th>Obs.</th>` : ""}${tipo >= 2 ? `<th class="num">Custo</th>` : ""}</tr></thead>
+      <tbody>${linhas.join("") || `<tr><td colspan="6"><i>(receita sem ingredientes)</i></td></tr>`}
+      ${tipo >= 2 ? `<tr class="forte"><td colspan="${temObs ? 5 : 4}">Custo dos ingredientes (${numTxt(doses)} doses)</td><td class="num">${eur(totalIngr)}</td></tr>` : ""}</tbody></table>
     ${tipo >= 2 ? `<p class="f-nota">${faltam ? "* Ingrediente que já não existe: usado o custo gravado na receita. " : ""}Custos calculados com os preços atuais dos ingredientes.</p>` : (faltam ? `<p class="f-nota">* Ingrediente que já não existe nos ingredientes.</p>` : "")}
     ${resumo}
     <h3>MODO DE PREPARAÇÃO</h3>
