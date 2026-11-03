@@ -165,6 +165,10 @@ function renderEditor(){
   $("rec-custo-total").textContent = eur(c.total);
   $("rec-custo-dose").textContent = r.doses > 0 ? eur(c.custoDose) : "—";
   $("rec-pvp").textContent = eur(c.pvp);
+  // preço das doses escritas no campo (é o PVP por dose × doses, o mesmo que se cobra nos pedidos)
+  const nd = r.doses > 0 ? r.doses : 0;
+  $("rec-pvp-rot").textContent = nd ? `PVP SUGERIDO · ${numTxt(nd)} ${nd === 1 ? "dose" : "doses"}` : "PVP SUGERIDO";
+  $("rec-pvp-total").textContent = nd ? eur(arred2(c.pvp * nd)) : "—";
   $("rec-pvp-det").innerHTML = `Custo c/ gastos e M.O.: ${eur(c.custoComGastos)}<br>Mão de obra / dose: ${eur(c.maoObraDose)}<br>` +
     `Lucro / dose: ${eur(c.lucro)}  ·  Preço s/ IVA: ${eur(c.precoSemIva)}`;
 }
