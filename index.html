@@ -136,12 +136,13 @@
     </div>
     <div class="grelha g2">
       <div>
-        <div class="linha quebra">
+        <div class="linha quebra" style="align-items:flex-start">
           <div class="cresce" style="min-width:240px"><label class="campo" for="rec-nome">Nome da receita</label>
             <input type="text" id="rec-nome" autocomplete="off" placeholder="Ex.: Bifanas à moda do Porto"></div>
           <div style="width:120px"><label class="campo" for="rec-id">ID</label><input type="text" id="rec-id" readonly></div>
-          <div style="width:100px"><label class="campo" for="rec-doses">Doses</label>
-            <input type="text" id="rec-doses" inputmode="decimal" autocomplete="off"></div>
+          <div style="width:130px"><label class="campo" for="rec-doses">Doses</label>
+            <input type="text" id="rec-doses" inputmode="decimal" autocomplete="off">
+            <label class="ajustar-doses" title="Ao mudar as doses, os pesos dos ingredientes e o tempo de mão de obra mudam na mesma proporção"><input type="checkbox" id="rec-doses-ajustar" checked> ajustar pesos</label></div>
         </div>
 
         <h3>Ingredientes</h3>

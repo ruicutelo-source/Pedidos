@@ -91,7 +91,10 @@ function abrirReceita(id){
   $("rec-mo").value = r && r.maoObra > 0 ? numTxt(r.maoObra, 2) : "";
   $("rec-modo").value = r ? (r.modo || "") : "";
   $("rec-apagar").style.display = r ? "inline-block" : "none";
+  // receita gravada: mudar as doses ajusta os pesos; receita nova: as doses são o rendimento que está a escrever
+  $("rec-doses-ajustar").checked = !!r;
   limparPesquisaIng();
+  fixarBase();
   mostrar("receitas");
   mostrarFoto(null);
   if(r && r.temFoto){
@@ -110,6 +113,31 @@ function abrirReceita(id){
   }
 }
 
+/* ---------- ajustar os pesos ao nº de doses ----------
+   A "base" são as quantidades (e minutos de mão de obra) que correspondem às doses escritas.
+   Mudar as doses com "ajustar pesos" ligado multiplica sempre a partir da base (sem acumular arredondamentos).
+   Qualquer alteração feita à mão nos ingredientes ou na mão de obra passa a ser a nova base. */
+function fixarBase(){
+  if(!ed) return;
+  ed.base = {doses: lerNumero($("rec-doses").value), itens: ed.itens.map((it)=>({qtd: it.qtd, custo: it.custo})),
+             mo: ed.mo.map((l)=>Number(l.min) || 0), moManual: ed.mo.length ? null : lerNumero($("rec-mo").value)};
+}
+$("rec-doses").addEventListener("input", ()=>{
+  if(!ed) return;
+  ed.sujo = true;
+  const n = lerNumero($("rec-doses").value), b = ed.base;
+  if(n > 0){
+    if($("rec-doses-ajustar").checked && b && b.doses > 0 && b.itens.length === ed.itens.length && b.mo.length === ed.mo.length){
+      const f = n / b.doses;
+      ed.itens.forEach((it, i)=>{ it.qtd = arred2(b.itens[i].qtd * f); it.custo = arred2((b.itens[i].custo || 0) * f); });
+      if(ed.mo.length){ ed.mo.forEach((l, i)=>{ l.min = arred2(b.mo[i] * f); }); construirLinhasMo(); }
+      else if(b.moManual > 0) $("rec-mo").value = numTxt(arred2(b.moManual * f), 2);
+    } else fixarBase();   // sem ajustar: só muda o rendimento; os pesos ficam e passam a valer para estas doses
+  }
+  renderEditor();
+});
+$("rec-doses-ajustar").addEventListener("change", fixarBase);
+
 /* Valores do ecrã -> objeto receita (percentagens em fração) */
 function receitaDoEcra(){
   const pctF = (id)=>{ const v = lerNumero($(id).value); return v == null ? null : v / 100; };
@@ -127,7 +155,7 @@ function renderEditor(){
       <td class="num">${numTxt(it.qtd)} ${esc(it.unidade)}</td><td class="num">${eur(it.custo)}</td>
       <td class="num" style="white-space:nowrap"><button class="lixo" data-editar="${i}" title="Alterar quantidade">✏️</button><button class="lixo" data-tirar="${i}" title="Retirar">🗑</button></td></tr>`),
     "Junte os ingredientes da receita.");
-  $("rec-itens").querySelectorAll("[data-tirar]").forEach((b)=>b.onclick = ()=>{ ed.itens.splice(+b.dataset.tirar, 1); ed.editarItem = -1; ed.sujo = true; limparPesquisaIng(); renderEditor(); });
+  $("rec-itens").querySelectorAll("[data-tirar]").forEach((b)=>b.onclick = ()=>{ ed.itens.splice(+b.dataset.tirar, 1); ed.editarItem = -1; ed.sujo = true; fixarBase(); limparPesquisaIng(); renderEditor(); });
   $("rec-itens").querySelectorAll("[data-preco]").forEach((b)=>b.onclick = ()=>editarIngrediente(b.dataset.preco, true));
   $("rec-itens").querySelectorAll("[data-editar]").forEach((b)=>b.onclick = ()=>{
     const i = +b.dataset.editar, it = ed.itens[i]; ed.editarItem = i;
@@ -155,10 +183,10 @@ function construirLinhasMo(){
       <button class="lixo" data-mo-tirar="${i}" title="Retirar">🗑</button></div>`).join("") +
     (ed.mo.length < MAX_LINHAS_MO && funcs.length ? `<button class="bt sec peq" id="rec-mo-add">+ Funcionário e tempo</button>` : "") +
     (!funcs.length ? `<div class="nota">Para calcular pelo tempo de confeção, crie primeiro os funcionários em Definições.</div>` : "");
-  box.querySelectorAll("[data-mo-func]").forEach((el)=>el.onchange = ()=>{ ed.mo[+el.dataset.moFunc].func = el.value; ed.sujo = true; renderEditor(); });
-  box.querySelectorAll("[data-mo-min]").forEach((el)=>el.oninput = ()=>{ ed.mo[+el.dataset.moMin].min = lerNumero(el.value) || 0; ed.sujo = true; renderEditor(); });
-  box.querySelectorAll("[data-mo-tirar]").forEach((el)=>el.onclick = ()=>{ ed.mo.splice(+el.dataset.moTirar, 1); ed.sujo = true; construirLinhasMo(); renderEditor(); });
-  if($("rec-mo-add")) $("rec-mo-add").onclick = ()=>{ ed.mo.push({func: funcs.length === 1 ? funcs[0].id : "", min: 0}); ed.sujo = true; construirLinhasMo(); renderEditor();
+  box.querySelectorAll("[data-mo-func]").forEach((el)=>el.onchange = ()=>{ ed.mo[+el.dataset.moFunc].func = el.value; ed.sujo = true; fixarBase(); renderEditor(); });
+  box.querySelectorAll("[data-mo-min]").forEach((el)=>el.oninput = ()=>{ ed.mo[+el.dataset.moMin].min = lerNumero(el.value) || 0; ed.sujo = true; fixarBase(); renderEditor(); });
+  box.querySelectorAll("[data-mo-tirar]").forEach((el)=>el.onclick = ()=>{ ed.mo.splice(+el.dataset.moTirar, 1); ed.sujo = true; fixarBase(); construirLinhasMo(); renderEditor(); });
+  if($("rec-mo-add")) $("rec-mo-add").onclick = ()=>{ ed.mo.push({func: funcs.length === 1 ? funcs[0].id : "", min: 0}); ed.sujo = true; fixarBase(); construirLinhasMo(); renderEditor();
     const m = box.querySelectorAll("[data-mo-min]"); if(m.length) m[m.length - 1].focus(); };
 }
 function renderMaoObra(){
@@ -175,8 +203,9 @@ function renderMaoObra(){
   else { if(mo.readOnly){ mo.readOnly = false; mo.value = ed.original && !(ed.original.moLinhas || []).length && ed.original.maoObra > 0 ? numTxt(ed.original.maoObra, 2) : ""; }
          $("rec-mo-nota").textContent = "Sem linhas de tempo: pode escrever a mão de obra (€) à mão, ou deixar vazio."; }
 }
-["rec-doses", "rec-gop", "rec-gnop", "rec-margem", "rec-iva", "rec-mo"].forEach((id)=>$(id).addEventListener("input", ()=>{ ed && (ed.sujo = true); renderEditor(); }));
+["rec-gop", "rec-gnop", "rec-margem", "rec-iva", "rec-mo"].forEach((id)=>$(id).addEventListener("input", ()=>{ ed && (ed.sujo = true); renderEditor(); }));
 ["rec-nome", "rec-modo"].forEach((id)=>$(id).addEventListener("input", ()=>{ ed && (ed.sujo = true); }));
+$("rec-mo").addEventListener("input", ()=>{ if(ed && !ed.mo.length) fixarBase(); });
 
 /* ---------- pesquisa de ingredientes ---------- */
 function limparPesquisaIng(){
@@ -215,7 +244,7 @@ $("rec-ing-add").onclick = ()=>{
   const item = {ing: ing.id, qtd: q, custo: custoItem(ing, q), nome: ing.nome, marca: ing.marca || "", unidade: ing.unidade,
                 obs: limparEspacos($("rec-ing-obs").value).slice(0, 80)};
   if(ed.editarItem >= 0 && ed.editarItem < ed.itens.length) ed.itens[ed.editarItem] = item; else ed.itens.push(item);
-  ed.sujo = true; limparPesquisaIng(); renderEditor(); $("rec-ing-busca").focus();
+  ed.sujo = true; fixarBase(); limparPesquisaIng(); renderEditor(); $("rec-ing-busca").focus();
 };
 
 /* ---------- foto (reduzida para caber na base de dados) ---------- */

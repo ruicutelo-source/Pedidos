@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1036647485085",
   appId: "1:1036647485085:web:a3f05d60475ac7177b0e74"
 };
-const VERSAO_APP = "2.5 (observações)";
+const VERSAO_APP = "2.6 (ajustar doses)";
 
 /* Quem é administrador. Qualquer outro email autorizado entra como caixa. */
 const EMAILS_ADMIN = ["administrador@cafe.pt"];

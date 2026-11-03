@@ -147,3 +147,5 @@ tr.anulado td:nth-child(6),tr.anulado td:nth-child(7){text-decoration:none}
 @media (max-width:760px){.linha-mo{grid-template-columns:1fr 110px 44px}.linha-mo [data-mo-h]{grid-column:1}.linha-mo b{grid-column:2}}
 .obs-item{font-size:12px;font-style:italic;color:#4B5563;margin-top:2px}
 .ficha td.obs{font-style:italic;font-size:9.5pt;color:#374151}
+.ajustar-doses{display:flex;align-items:center;gap:5px;font-size:12px;color:#4B5563;margin-top:4px;cursor:pointer;white-space:nowrap}
+.ajustar-doses input{width:auto;margin:0}
